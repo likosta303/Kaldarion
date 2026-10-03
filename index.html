@@ -2440,10 +2440,64 @@ function startPlayerDiceListener(){
       ctx.fillStyle="#fff";ctx.font=`900 ${Math.max(12,Math.min(22,w/15))}px Arial`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.shadowColor="#000c";ctx.shadowBlur=4;ctx.fillText(g.labels[F.faceIndex]||"",cx,cy);ctx.shadowBlur=0;
     });
   }
-  let anim={rx:.4,ry:.2,rz:0,t:0,start:0,dur:1700,done:false,sides:20,roll:1,who:"",color:"#c99b45"};
+  function finalRotationForRoll(g,roll){
+    // Ориентируем именно грань с выпавшим числом к камере.
+    // Поэтому число в записи броска и число на лицевой грани всегда совпадают.
+    const idx=Math.max(0,Math.min(g.f.length-1,(Number(roll)||1)-1));
+    const face=g.f[idx]||g.f[0];
+    let c=[0,0,0];
+    face.forEach(k=>{c[0]+=g.v[k][0];c[1]+=g.v[k][1];c[2]+=g.v[k][2]});
+    const len=Math.hypot(...c)||1;
+    c=c.map(x=>x/len);
+    // Сначала поворачиваем вокруг Y, затем X так, чтобы нормаль
+    // выбранной грани смотрела прямо на камеру (направление -Z).
+    const ry=Math.atan2(-c[0],c[2])+Math.PI;
+    const cy=Math.cos(ry),sy=Math.sin(ry);
+    const y1=c[1];
+    const z1=-c[0]*sy+c[2]*cy;
+    const rx=Math.atan2(y1,z1)+Math.PI;
+    return {rx,ry,rz:0.35};
+  }
+  let anim={rx:.4,ry:.2,rz:0,t:0,start:0,dur:1700,done:false,sides:20,roll:1,who:"",color:"#c99b45",targetRx:.4,targetRy:.2,targetRz:.35};
   function loop(ts){
-    const elapsed=ts-anim.start, p=Math.min(1,elapsed/anim.dur);const ease=1-Math.pow(1-p,3);anim.rx=.5+ease*TAU*1.8;anim.ry=.25+ease*TAU*2.35;anim.rz=ease*TAU*.7; if(p<.7){anim.rx+=Math.sin(p*TAU*9)*.35*(1-p);anim.ry+=Math.cos(p*TAU*11)*.3*(1-p)} draw(anim.sides,anim.roll,anim.who,anim.color);if(p<1){raf=requestAnimationFrame(loop)}else{valueEl().textContent=String(anim.roll);stage().classList.add("result");stopTimer=setTimeout(()=>{stage().style.display="none";stage().classList.remove("result")},1250)}}
-  window.animate3DDice=function(sides,roll,who,color){cancelAnimationFrame(raf);clearTimeout(stopTimer);const st=stage();if(!st)return;st.style.display="block";st.classList.remove("result");caption().textContent="🎲 "+who+" · d"+sides;valueEl().textContent="";anim={rx:.2,ry:.1,rz:.15,t:0,start:performance.now(),dur:1750,sides,roll,who,color:color||"#c99b45"};raf=requestAnimationFrame(loop)};
+    const elapsed=ts-anim.start, p=Math.min(1,elapsed/anim.dur);
+    const ease=1-Math.pow(1-p,3);
+    // В начале куб активно вращается, затем плавно приходит ровно
+    // к ориентации, в которой сверху/спереди находится выпавшая грань.
+    anim.rx=.5+ease*(anim.targetRx+TAU*2.0-.5);
+    anim.ry=.25+ease*(anim.targetRy+TAU*2.35-.25);
+    anim.rz=ease*(anim.targetRz+TAU*.65);
+    if(p<.7){
+      anim.rx+=Math.sin(p*TAU*9)*.35*(1-p);
+      anim.ry+=Math.cos(p*TAU*11)*.3*(1-p);
+    }
+    draw(anim.sides,anim.roll,anim.who,anim.color);
+    if(p<1){
+      raf=requestAnimationFrame(loop);
+    }else{
+      // Устанавливаем финальную ориентацию без погрешности анимации.
+      anim.rx=anim.targetRx;anim.ry=anim.targetRy;anim.rz=anim.targetRz;
+      draw(anim.sides,anim.roll,anim.who,anim.color);
+      valueEl().textContent=String(anim.roll);
+      stage().classList.add("result");
+      stopTimer=setTimeout(()=>{stage().style.display="none";stage().classList.remove("result")},1250);
+    }
+  }
+  window.animate3DDice=function(sides,roll,who,color){
+    cancelAnimationFrame(raf);clearTimeout(stopTimer);
+    const st=stage();if(!st)return;
+    st.style.display="block";st.classList.remove("result");
+    caption().textContent="🎲 "+who+" · d"+sides;
+    valueEl().textContent="";
+    const g=geomFor(Number(sides)||20);
+    const target=finalRotationForRoll(g,Number(roll)||1);
+    anim={
+      rx:.2,ry:.1,rz:.15,t:0,start:performance.now(),dur:1750,
+      sides:Number(sides)||20,roll:Number(roll)||1,who,color:color||"#c99b45",
+      targetRx:target.rx,targetRy:target.ry,targetRz:target.rz
+    };
+    raf=requestAnimationFrame(loop);
+  };
 })();
 
 // Dice roller: available to both players and masters.
