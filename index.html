@@ -1,0 +1,2471 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Колдарион</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:system-ui,Arial;background:#07131d;color:#eee}
+button,input{font:inherit}button{cursor:pointer;border:1px solid #ffffff25;background:#ffffff0c;color:#eee;border-radius:7px;padding:9px 12px}
+button:hover{background:#ffffff18}.primary{background:#8b6b2f;border-color:#d8b76a}
+#login{height:100%;display:grid;place-items:center;background:radial-gradient(circle at center,#173342,#061019)}
+.card{width:min(390px,92vw);padding:28px;background:#081722ee;border:1px solid #ffffff20;border-radius:14px;box-shadow:0 20px 60px #0008}
+.card h1{margin:0 0 5px;text-align:center;color:#efd18b;font-family:Georgia,serif;font-size:34px}
+.card p{text-align:center;color:#a9b5b5;font-size:13px;margin:0 0 20px}
+.card input{width:100%;padding:11px;margin:6px 0;background:#06131c;border:1px solid #ffffff22;border-radius:7px;color:#fff}
+.roleButtons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.roleButtons button{padding:12px}
+.error{min-height:20px;color:#e59b9b;font-size:12px;text-align:center;margin-top:9px}
+#app{display:none;height:100%;flex-direction:column}
+header{height:64px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:#091923;border-bottom:1px solid #ffffff20}
+.title{font:25px Georgia,serif;color:#efd18b}.sub{font-size:11px;color:#9daaaa;letter-spacing:1px}
+.actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.badge{padding:7px 10px;border-radius:999px;background:#ffffff0b;border:1px solid #ffffff18;font-size:12px;color:#d9e1df}
+.tabs{height:48px;flex:none;display:flex;align-items:flex-end;gap:4px;padding:0 14px;background:#081721;border-bottom:1px solid #ffffff20}
+.tab{height:42px;padding:10px 22px;border:1px solid #ffffff18;border-bottom:none;border-radius:8px 8px 0 0;background:#ffffff08;color:#aeb9b8;font-weight:700;letter-spacing:.6px}
+.tab.active{background:#0d2230;color:#efd18b;border-color:#d8b76a66}
+#homeTab{flex:1;min-height:0;overflow:auto;padding:24px;background:radial-gradient(circle at 50% 10%,#173342,#07131d 55%);display:flex;align-items:center;justify-content:center}
+.homeCard{width:min(850px,92vw);padding:34px;background:#081722dd;border:1px solid #ffffff20;border-radius:16px;box-shadow:0 20px 60px #0008;text-align:center}
+.homeCard h1{font:36px Georgia,serif;color:#efd18b;margin:0 0 12px}.homeCard p{color:#b8c3c2;line-height:1.6;margin:8px 0}.homeActions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:20px}
+.homeDiceSettings{width:min(720px,100%);margin:16px auto 0;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;text-align:left;border:1px solid #ffffff18;border-radius:14px;background:#081a23cc}
+.homeDiceSettingsText{min-width:0;flex:1}.homeDiceSettingsTitle{font-weight:800;color:#e7d29a;font-size:16px;display:flex;align-items:center;gap:8px}.homeDiceSettingsHint{margin-top:5px;color:#91a2a7;font-size:12px;line-height:1.45}.homeDiceColorSwatch{width:18px;height:18px;border-radius:50%;display:inline-block;background:#5b8fc9;border:1px solid #fff8;box-shadow:0 0 0 2px #0008}
+.homeDiceSettingsButton{white-space:nowrap}
+.onlinePlayers{margin:26px auto 0;padding:18px;border:1px solid #ffffff18;border-radius:14px;background:#06141ddd;text-align:left;max-width:620px}
+.onlinePlayersHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.onlinePlayersTitle{font-weight:700;color:#e5edf0;font-size:18px}
+.onlinePlayersCount{font-size:13px;color:#9fb0b4;white-space:nowrap}
+.onlinePlayersList{display:flex;flex-direction:column;gap:8px}
+.onlinePlayer{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:#ffffff06;border:1px solid #ffffff0d}
+.onlineDot{width:9px;height:9px;border-radius:50%;background:#62d48a;box-shadow:0 0 10px #62d48a;flex:none}
+.onlinePlayerName{color:#dbe5e7;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.onlinePlayersEmpty{color:#84989d;font-size:14px;text-align:center;padding:10px}
+@media(max-width:600px){.onlinePlayers{padding:14px}.onlinePlayersHeader{align-items:flex-start;flex-direction:column;gap:4px}.onlinePlayersTitle{font-size:16px}}
+
+#worldTab{flex:1 1 auto;min-height:0;height:0;display:flex;flex-direction:column;overflow:hidden}
+#worldTabs{display:flex;align-items:center;gap:6px;min-height:0}
+#worldSwitcher{flex:none;height:auto;min-height:48px;display:flex;align-items:center;gap:6px;padding:7px 12px;background:#081721;border-bottom:1px solid #ffffff20;overflow-x:auto;white-space:nowrap;box-sizing:border-box}
+#worldMain{flex:1 1 auto;min-height:0;height:0;overflow:hidden}
+.worldSwitchTitle{font-size:11px;color:#829493;text-transform:uppercase;letter-spacing:.8px;margin-right:3px}
+.worldTab{flex:none;padding:7px 12px;border:1px solid #ffffff18;border-radius:7px;background:#ffffff08;color:#b8c3c2;font-weight:700;font-size:12px}
+.worldTab:hover{background:#ffffff14}
+.worldTab.active{background:#0d2230;color:#efd18b;border-color:#d8b76a88}
+.worldAdd{flex:none;padding:7px 11px}
+.worldManage{display:none;gap:5px;align-items:center}
+.worldManage button{padding:7px 9px;font-size:12px}
+@media(max-width:700px){.worldManage button{padding:7px 8px}}
+main{flex:1;min-height:0;display:grid;grid-template-columns:300px 1fr;transition:grid-template-columns .28s ease}
+aside{padding:13px;background:#07131df2;border-right:1px solid #ffffff20;overflow:auto;transition:padding .28s ease,opacity .2s ease,transform .28s ease}
+main.sidebar-hidden{grid-template-columns:0 1fr}
+main.sidebar-hidden aside{padding:0;opacity:0;overflow:hidden;border-right:0;pointer-events:none;transform:translateX(-12px)}
+.sidebarTop{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
+.sidebarTop h2{margin:4px 0}
+#toggleSidebar,#showSidebar{position:absolute;z-index:20;width:38px;height:38px;padding:0;display:grid;place-items:center;border-radius:9px;background:#07131df2;border:1px solid #ffffff25;box-shadow:0 5px 18px #0006;font-size:18px}
+#toggleSidebar{right:8px;top:8px}
+#showSidebar{left:8px;top:8px;display:none}
+#showSidebar:hover,#toggleSidebar:hover{background:#173342;border-color:#d8b76a88}
+main.sidebar-hidden #showSidebar{display:grid}
+@media(max-width:700px){
+ main{grid-template-columns:minmax(260px,82vw) 1fr}
+ main.sidebar-hidden{grid-template-columns:0 1fr}
+ aside{padding:10px}
+}
+h2{font:16px Georgia,serif;color:#efd18b;margin:4px 0 9px}
+input,textarea{width:100%;padding:9px;border:1px solid #ffffff22;background:#06131c;color:#fff;border-radius:6px}
+textarea{resize:vertical;min-height:60px}
+#list{display:grid;gap:5px;margin-top:9px}.item{padding:8px;border:1px solid transparent;border-radius:6px;cursor:pointer}
+.item:hover,.item.active{background:#ffffff0b;border-color:#d8b76a55}.item b{color:#e8ca83;font-size:13px}
+.item small{display:block;color:#9daaaa;font-size:11px}
+.help{font-size:11px;line-height:1.45;color:#98a8a8;background:#ffffff06;padding:9px;border-radius:7px;margin-top:12px}
+#mapArea{min-width:0;min-height:0;display:flex;flex:1 1 auto;flex-direction:column;overflow:auto;background:#0a2530}
+#map{position:relative;flex:1 1 auto;min-height:360px;overflow:hidden;background:#0a2530;cursor:grab}#map.drag{cursor:grabbing}
+#mapArea #playerDetails{flex:none;margin:0;padding:14px;background:#07131d;border-top:1px solid #ffffff20}
+#mapArea .playerDetailsCard{max-width:1000px;margin:0 auto}
+@media(max-width:700px){#mapArea #map{min-height:420px}#mapArea #playerDetails{padding:12px}}
+#world{position:absolute;width:min(1200px,92vw);aspect-ratio:1536/1024;left:50%;top:50%;transform:translate(-50%,-50%);user-select:none}
+#mapImage{width:100%;height:100%;display:block;pointer-events:none}
+#markers{position:absolute;inset:0}
+.marker{position:absolute;transform:translate(-50%,-50%);cursor:pointer}
+.pin{width:20px;height:20px;background:#d6b568;border:2px solid white;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 9px #000}
+.pin:after{content:"";position:absolute;width:5px;height:5px;background:#26343a;border-radius:50%;left:5px;top:5px}
+.marker .name{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);white-space:nowrap;padding:3px 6px;background:#07131ded;border:1px solid #d8b76a55;border-radius:4px;font-size:11px;pointer-events:none}
+.marker.selected .pin{box-shadow:0 0 0 4px #d8b76a44,0 2px 12px #000}
+#areaSvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}.areaPolygon{fill:#efd18b22;stroke:#efd18b;stroke-width:2;vector-effect:non-scaling-stroke;pointer-events:none}.areaPolygon.temp{fill:#efd18b18;stroke-dasharray:7 5}.areaFog{fill:#000;stroke:none;vector-effect:non-scaling-stroke;pointer-events:none;opacity:1}.areaPoint{fill:#efd18b;stroke:#07131d;stroke-width:1;vector-effect:non-scaling-stroke}
+#editor{display:none}
+#playerDetails{margin-top:12px}
+.playerDetailsCard{padding:11px;background:#ffffff06;border:1px solid #ffffff14;border-radius:8px}
+.playerDetailsCard h3{margin:0 0 10px;color:#efd18b;font:16px Georgia,serif}
+.detailLabel{font-size:10px;color:#829493;text-transform:uppercase;letter-spacing:.7px;margin-top:8px}
+.detailValue{font-size:13px;color:#eef3f1;line-height:1.45;word-break:break-word}
+.status{font-size:11px;color:#9bb1ae;min-height:16px;margin-top:7px}
+.layerBox{margin:10px 0;padding:9px;background:#ffffff06;border:1px solid #ffffff14;border-radius:8px}
+.layerBoxTitle{font-size:11px;color:#9daaaa;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px}
+#layerList{display:grid;gap:5px;max-height:150px;overflow:auto}
+.layerItem{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:7px;border:1px solid transparent;border-radius:6px;cursor:pointer}
+.layerItem:hover,.layerItem.active{background:#ffffff0b;border-color:#d8b76a55}
+.layerItem b{font-size:12px;color:#e8ca83;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.layerActions{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px}
+.layerActions button{padding:6px 8px;font-size:11px}
+.layerPlayerHint{font-size:10px;color:#829493;margin-top:6px}
+@media(max-width:760px){main{grid-template-columns:230px 1fr}.title{font-size:20px}.worldSwitchTitle{display:none}.worldTab{padding:7px 10px}}
+
+
+.charactersPage{width:min(1100px,100%);margin:0 auto}
+.charactersHero{padding:22px;background:#0b1d28;border:1px solid #ffffff18;border-radius:14px;margin-bottom:14px}
+.charactersKicker{font-size:11px;letter-spacing:1.5px;color:#9daaaa}
+.charactersHero h1{margin:4px 0;color:#efd18b;font:32px Georgia,serif}
+.charactersHero p{margin:0;color:#aeb9b8;line-height:1.55}
+.charactersGrid{display:grid;grid-template-columns:1fr;gap:14px}
+.characterPanel{background:#0b1d28;border:1px solid #ffffff18;border-radius:14px;padding:18px}
+.characterPanel h2{margin:0 0 12px;color:#efd18b;font:22px Georgia,serif}
+.characterEmpty{padding:20px;border:1px dashed #ffffff22;border-radius:9px;color:#899797;margin-bottom:12px}
+.connectedCharacter{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;margin-bottom:9px;border:1px solid #2d4653;border-radius:14px;background:#091a23}
+.connectedCharacter>div{min-width:0;flex:1}
+.connectedCharacter b{display:block;color:#e9d18e;margin-bottom:4px}
+.connectedCharacter small{display:block;color:#8ea3aa;overflow:hidden;text-overflow:ellipsis}
+.connectedCharacter .charMeta{font-size:11px;color:#71878f}
+.connectedCharacter button{border:1px solid #435963!important;background:#0b202b!important;color:#b9c8cc!important;padding:7px 10px!important;min-height:auto!important;width:auto!important}
+.characterActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.characterActions button{margin:0}
+
+.characterSelectGrid{display:grid;gap:10px;margin:16px 0;max-height:50vh;overflow:auto}
+.characterSelectItem{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid #ffffff18;border-radius:12px;background:#0b1d28}
+.characterSelectItem b{display:block;color:#efd18b}.characterSelectItem small{display:block;color:#aeb9b8;margin-top:3px}
+.characterSelectEmpty{padding:14px;border:1px dashed #ffffff22;border-radius:12px;color:#aeb9b8}
+.characterModal{position:fixed;inset:0;z-index:1000;display:none;place-items:center;padding:18px;background:#0009;backdrop-filter:blur(4px)}
+.characterModal.open{display:grid}
+.characterModalCard{position:relative;width:min(760px,94vw);max-height:90vh;overflow:auto;padding:28px;background:#0b202b;border:1px solid #ffffff25;border-radius:18px;box-shadow:0 24px 80px #000b}
+.characterModalClose{position:absolute;right:14px;top:10px;border:0;background:transparent!important;font-size:34px;color:#b8c7ca;padding:2px 8px!important}
+.diceColorCard{width:min(500px,94vw)}
+.diceColorPickerRow{display:flex;align-items:center;gap:16px;padding:16px;background:#081a23;border:1px solid #ffffff16;border-radius:12px}
+.diceColorPickerRow input[type=color]{width:76px;height:56px;padding:4px;border-radius:10px;cursor:pointer;background:#071821;border:1px solid #ffffff22}
+.diceColorPickerRow b{display:block;color:#efd18b;font-family:ui-monospace,monospace;font-size:18px}.diceColorPickerRow small{display:block;color:#8fa1a6;margin-top:5px}
+.characterModalCard h2{font:32px Georgia,serif;color:#efd18b;margin:4px 0 10px}
+.characterModalCard p{color:#aeb9b8;line-height:1.5}
+.characterModalCard label{display:block;font-size:12px;color:#9daaaa;margin:12px 0 5px}
+.characterModalActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.characterModalActions>*{flex:1;min-width:140px}
+.sheetGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.sheetGrid.two{grid-template-columns:repeat(2,1fr)}
+.sheetField{background:#081a23;border:1px solid #ffffff16;border-radius:9px;padding:9px}
+.sheetField label{margin:0 0 5px;font-size:10px;color:#829493;text-transform:uppercase;letter-spacing:.6px}
+.sheetField input,.sheetField textarea{margin:0}
+.sheetSection{margin-top:14px;padding-top:12px;border-top:1px solid #ffffff16}
+.sheetSection h3{font:19px Georgia,serif;color:#efd18b;margin:0 0 9px}
+.abilityGrid{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}
+.abilityBox{text-align:center;padding:8px 4px;background:#081a23;border:1px solid #ffffff16;border-radius:9px}
+.abilityBox .abilityName{font-size:10px;color:#829493}
+.abilityBox input{padding:7px 3px;text-align:center;font-weight:700}
+.abilityMod{margin-top:4px;color:#efd18b;font-weight:700}
+.hpRow{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:9px}
+.hpControl{display:flex;gap:5px;align-items:center}
+.hpControl button{padding:8px 12px}
+.hpControl input{text-align:center}
+@media(max-width:760px){
+ .sheetGrid,.sheetGrid.two{grid-template-columns:1fr 1fr}
+ .abilityGrid{grid-template-columns:repeat(3,1fr)}
+ .hpRow{grid-template-columns:1fr}
+ .characterModalCard{padding:22px 16px}
+}
+
+
+.connectedCharacter{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;margin-bottom:9px;border:1px solid #2d4653;border-radius:14px;background:#091a23}.connectedCharacter>div{min-width:0}.connectedCharacter b{display:block;color:#e9d18e;margin-bottom:4px}.connectedCharacter small{display:block;color:#8ea3aa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:360px}.connectedCharacter button{border:1px solid #435963!important;background:#0b202b!important;color:#b9c8cc!important;padding:7px 10px!important;min-height:auto!important;width:auto!important}
+.characterModal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(2,10,16,.78);backdrop-filter:blur(6px)}
+.characterModal.open{display:flex}
+.characterModalCard{position:relative;width:min(560px,100%);box-sizing:border-box;border:1px solid #334956;border-radius:24px;background:#0b202b;padding:28px;box-shadow:0 24px 80px rgba(0,0,0,.45)}
+.characterModalCard h2{margin:5px 0 10px;color:#ead08b;font:700 30px Georgia,serif}
+.characterModalCard p{color:#aebdc2;line-height:1.55;margin:0 0 18px}
+.characterModalCard label{display:block;color:#c9d4d7;margin:0 0 7px}
+.characterModalCard input{width:100%;box-sizing:border-box;margin:0;border:1px solid #3a515d;border-radius:12px;background:#071821;color:#eef4f5;padding:13px 14px;font-size:16px;outline:none}
+.characterModalCard input:focus{border-color:#b38a3d;box-shadow:0 0 0 2px rgba(179,138,61,.18)}
+.characterModalActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.characterModalActions a,.characterModalActions button{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer;min-height:46px;box-sizing:border-box}
+.characterModalClose{position:absolute;right:14px;top:10px;border:0;background:transparent;color:#aebdc2;font-size:32px;line-height:1;cursor:pointer}
+@media(max-width:600px){.characterModal{padding:12px}.characterModalCard{padding:24px 18px;border-radius:20px}.characterModalActions>*{width:100%}}
+
+#sessionScreen{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:18px;background:radial-gradient(circle at center,#173342,#061019);overflow:auto}
+.sessionCard{width:min(620px,94vw);max-height:92vh;overflow:auto;padding:26px;background:#081722ee;border:1px solid #ffffff20;border-radius:20px;box-shadow:0 20px 70px #0009}
+.sessionKicker{font-size:11px;letter-spacing:2px;color:#b99a5a;text-align:center}
+.sessionCard h1{margin:5px 0 8px;text-align:center;color:#efd18b;font:700 30px Georgia,serif}
+.sessionCard>p{text-align:center;color:#aebdc2;margin:0 0 20px}
+.sessionSection{padding:16px;margin:12px 0;border:1px solid #ffffff18;border-radius:14px;background:#06141ddd}
+.sessionSection h2{font-size:18px;margin:0 0 12px;color:#e7edf0}
+.sessionSection input{width:100%;padding:12px 14px;margin:5px 0;background:#06131c;border:1px solid #ffffff22;border-radius:10px;color:#fff}
+.sessionSection button{margin-top:8px}
+.sessionStatus{min-height:20px;margin-top:8px;color:#b8c6ca;font-size:13px}
+.sessionList{display:flex;flex-direction:column;gap:8px}
+.sessionItem{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px;border:1px solid #ffffff12;border-radius:10px;background:#ffffff05}
+.sessionItemInfo{min-width:0}.sessionItemInfo b{display:block;color:#edf2f3}.sessionItemInfo small{display:block;color:#8fa1a6;margin-top:3px}
+.sessionActions{display:flex;justify-content:center;margin-top:14px}
+.sessionCodeValue{font-family:ui-monospace,monospace;letter-spacing:2px;color:#efd18b}
+.sessionMaster{color:#9fb0b5!important}.sessionItem button{white-space:nowrap}
+@media(max-width:600px){.sessionCard{padding:18px}.sessionItem{align-items:flex-start;flex-direction:column}.sessionItem button{width:100%}}
+
+/* Dice roller */
+.diceBox{
+  margin:0 0 10px;
+  padding:12px;
+  border:1px solid #ffffff18;
+  border-radius:10px;
+  background:#07131d;
+}
+.diceBoxTitle{
+  color:#d9c28a;
+  font-size:13px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  margin-bottom:9px;
+}
+.diceGrid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:7px;
+}
+.diceButton{
+  min-height:42px;
+  padding:8px 5px;
+  border:1px solid #ffffff20;
+  border-radius:8px;
+  background:#142630;
+  color:#edf2f4;
+  font-weight:700;
+  cursor:pointer;
+}
+.diceButton:hover{border-color:#d9b96e}
+.diceButton:active{transform:scale(.97)}
+@media(max-width:700px){
+  .diceGrid{grid-template-columns:repeat(4,1fr)}
+}
+.diceResult{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  z-index:99999;
+  min-width:150px;
+  padding:20px 26px;
+  border:2px solid #d9b96e;
+  border-radius:18px;
+  background:#07131d;
+  box-shadow:0 14px 50px #0009;
+  color:#f2d58d;
+  text-align:center;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .12s ease,transform .12s ease;
+}
+.diceResult.show{
+  opacity:1;
+  transform:translate(-50%,-50%) scale(1);
+}
+.diceResult .diceResultLabel{
+  font-size:14px;
+  color:#aebbc0;
+  margin-bottom:5px;
+}
+.diceResult .diceResultNumber{
+  font-size:54px;
+  line-height:1;
+  font-weight:800;
+}
+#map > .diceResult{
+  width:min(220px,42%);
+  min-width:120px;
+  padding:16px 20px;
+  z-index:5000;
+}
+#map > .diceResult.show{
+  animation:diceMapLand .95s cubic-bezier(.2,.8,.25,1) both;
+}
+@keyframes diceMapLand{
+  0%{opacity:0;transform:translate(-50%,-140%) scale(.35) rotate(-10deg);}
+  55%{opacity:1;transform:translate(-50%,-55%) scale(1.08) rotate(3deg);}
+  75%{transform:translate(-50%,-50%) scale(.96) rotate(-1deg);}
+  100%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}
+}
+
+
+
+/* 3D dice on the map */
+#dice3DStage{position:absolute;inset:0;z-index:5100;pointer-events:none;display:none;overflow:hidden}
+#dice3DCanvas{position:absolute;left:50%;top:50%;width:min(260px,46%);height:min(260px,46%);transform:translate(-50%,-50%);display:block;overflow:visible}
+#dice3DStage .dice3DCaption{position:absolute;left:50%;top:calc(50% + min(160px,31%));transform:translateX(-50%);padding:7px 12px;border:1px solid #ffffff24;border-radius:999px;background:#07131de8;color:#d9c28a;font-size:12px;font-weight:700;letter-spacing:.04em;white-space:nowrap;box-shadow:0 8px 28px #0008}
+#dice3DStage .dice3DValue{position:absolute;left:50%;top:calc(50% + min(190px,37%));transform:translateX(-50%) scale(.7);opacity:0;padding:5px 13px;border-radius:10px;background:#07131df2;color:#f2d58d;font-size:38px;font-weight:900;line-height:1;border:1px solid #d9b96e66;box-shadow:0 10px 30px #0009;transition:opacity .2s,transform .35s cubic-bezier(.2,.9,.2,1)}
+#dice3DStage.result .dice3DValue{opacity:1;transform:translateX(-50%) scale(1)}
+@media(max-width:600px){#dice3DCanvas{width:min(46vw,240px);height:min(46vw,240px)}#dice3DStage .dice3DCaption{top:calc(50% + 29vw)}#dice3DStage .dice3DValue{top:calc(50% + 35vw);font-size:30px}}
+
+/* Bottom dice dock when the world sidebar is hidden */
+.diceBottomDock{
+  display:none;
+  position:fixed;
+  left:50%;
+  bottom:calc(14px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  z-index:100000;
+  pointer-events:auto;
+  padding:8px;
+  border:1px solid #ffffff22;
+  border-radius:14px;
+  background:#07131deF;
+  box-shadow:0 10px 30px #0009;
+  backdrop-filter:blur(8px);
+}
+body.dice-sidebar-hidden .diceBottomDock{display:block}
+.diceBottomDock .diceGrid{display:grid;grid-template-columns:repeat(7,auto);gap:6px}
+.diceColorButton{display:block;width:100%;margin:0 0 6px;min-height:36px;padding:7px 10px;border:1px solid #ffffff22;border-radius:9px;background:#111c24;color:#d7e0e2;font-size:12px;font-weight:700;cursor:pointer}.diceColorButton:hover{border-color:#d9b96e}
+.diceColorSwatch{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;margin-right:6px;border:1px solid #fff8;box-shadow:0 0 0 1px #0008}
+.dicePublishToggle,.dicePublishToggleWorld{display:none;margin:0 0 6px;width:100%;min-height:36px;padding:7px 10px;border:1px solid #ffffff22;border-radius:9px;background:#111c24;color:#c7d1d4;font-size:12px;font-weight:700;cursor:pointer}.dicePublishToggle.active,.dicePublishToggleWorld.active{border-color:#d9b96e;background:#2a2416;color:#f2d58d}.diceBottomDock.master-dice .dicePublishToggle,.master-dice .dicePublishToggleWorld{display:block}.diceBottomDock .diceButton{min-width:43px;min-height:40px;padding:7px 8px}
+@media(max-width:520px){
+  .diceBottomDock{bottom:calc(8px + env(safe-area-inset-bottom));max-width:calc(100vw - 16px);padding:6px}
+  .diceBottomDock .diceGrid{gap:4px}
+  .diceBottomDock .diceButton{min-width:39px;min-height:38px;padding:6px 5px;font-size:12px}
+}
+
+
+.diceHistoryBox{max-height:260px;overflow:auto}.diceHistoryItem{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #ffffff12}.diceHistoryItem:last-child{border-bottom:0}.diceHistoryWho{min-width:0}.diceHistoryWho b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.diceHistoryWho small{display:block;color:#8fa0a8;font-size:11px;margin-top:2px}.diceHistoryRoll{font-weight:800;color:#f2d58d;font-size:18px;white-space:nowrap}.diceHistoryRoll span{font-size:11px;color:#8fa0a8;font-weight:500;margin-left:3px}
+</style>
+</head>
+<body>
+
+<div id="login">
+ <div class="card">
+  <h1>Колдарион</h1>
+  <p>Добро пожаловать</p>
+  <input id="loginName" placeholder="Ваше имя / ник (необязательно)">
+  <button class="primary" onclick="loginGoogle()">🔵 Войти через Google</button>
+  <div style="font-size:13px;color:#91a3a8;line-height:1.5;text-align:center;margin-top:12px">После входа вы сможете выбрать мастера и сессию или создать собственную сессию.</div>
+  <div id="loginError" class="error"></div>
+  <div id="firebaseHint" style="font-size:11px;color:#849493;margin-top:12px;text-align:center">Вход выполняется через Google. Пароль сайта не нужен.</div>
+ </div>
+</div>
+
+<div id="sessionScreen" style="display:none">
+ <div class="sessionCard">
+  <div class="sessionKicker">КОЛДАРИОН · СЕССИИ</div>
+  <h1 id="sessionTitle">Выбор сессии</h1>
+  <p id="sessionIntro">Выберите существующую сессию или подключитесь по коду.</p>
+
+  <div id="masterSessionCreate" class="sessionSection">
+   <h2>🎲 Создать новую сессию</h2>
+   <p style="margin:0 0 10px;color:#9fb0b5;font-size:13px;line-height:1.45">Любой пользователь может создать свою сессию. После создания он автоматически становится её мастером.</p>
+   <input id="sessionName" placeholder="Название сессии, например «Приключение в Колдарионе»">
+   <input id="sessionPassword" type="password" placeholder="Пароль для игроков">
+   <button id="createSessionButton" class="primary">＋ Создать сессию</button>
+   <div id="createSessionStatus" class="sessionStatus"></div>
+  </div>
+
+  <div id="mySessionsSection" class="sessionSection">
+   <h2>👑 Мои сессии</h2>
+   <div id="mySessionsList" class="sessionList"></div>
+  </div>
+
+  <div id="allSessionsSection" class="sessionSection">
+   <h2>🌐 Мастера и доступные сессии</h2>
+   <p style="margin:0 0 10px;color:#9fb0b5;font-size:13px;line-height:1.45">Выберите мастера и сессию. Для подключения понадобится пароль сессии.</p>
+   <div id="allSessionsList" class="sessionList"></div>
+   <div id="allSessionsStatus" class="sessionStatus"></div>
+  </div>
+
+  <div id="playerSessionJoin" class="sessionSection">
+   <h2>🔑 Войти в выбранную сессию</h2>
+   <input id="sessionCode" placeholder="Код сессии">
+   <input id="joinSessionPassword" type="password" placeholder="Пароль сессии">
+   <button id="joinSessionButton" class="primary">Войти в сессию</button>
+   <div id="joinSessionStatus" class="sessionStatus"></div>
+  </div>
+
+  <div id="sessionMembersSection" class="sessionSection" style="display:none">
+   <h2>👥 Участники сессии</h2>
+   <div id="sessionMembersList" class="sessionList"></div>
+  </div>
+
+  <div class="sessionActions">
+   <button id="sessionBackButton" type="button">Выйти из аккаунта</button>
+  </div>
+ </div>
+</div>
+
+<div id="app">
+<header>
+ <div><div class="title">Колдарион</div><div class="sub">Интерактивный стол</div></div>
+ <div class="actions"><span id="sessionBadge" class="badge" style="display:none"></span><span id="roleBadge" class="badge"></span><button id="openSessionsButton" type="button">🎲 Сессия</button><button onclick="logout()">Выйти</button></div>
+</header>
+<div class="tabs">
+ <button class="tab active" id="homeTabButton">🏠 Главная страница</button>
+ <button class="tab" id="worldTabButton">🌍 МИР</button>
+ <button class="tab" id="charactersTabButton">🧙 Персонажи</button>
+</div>
+<div id="homeTab">
+ <div class="homeCard">
+  <h1>Добро пожаловать в Колдарион</h1>
+  <div class="onlinePlayers">
+   <div class="onlinePlayersHeader">
+    <div class="onlinePlayersTitle">🟢 Подключённые игроки</div>
+    <div class="onlinePlayersCount" id="onlinePlayersCount">Проверяем...</div>
+   </div>
+   <div class="onlinePlayersList" id="onlinePlayersList">
+    <div class="onlinePlayersEmpty">Загрузка списка игроков...</div>
+   </div>
+  </div>
+  <div class="homeActions">
+   <button class="primary" id="openWorldButton">🌍 Открыть мир</button>
+   <button id="openCharactersButton">🧙 Открыть персонажей</button>
+  </div>
+  <div class="homeDiceSettings">
+   <div class="homeDiceSettingsText">
+    <div class="homeDiceSettingsTitle"><span id="homeDiceColorSwatch" class="homeDiceColorSwatch"></span>🎲 Настройка моих кубов</div>
+    <div class="homeDiceSettingsHint">Выберите свой цвет — он будет использоваться в ваших 3D-бросках.</div>
+   </div>
+   <button id="openDiceColorButton" class="homeDiceSettingsButton" type="button">🎨 Настроить цвет</button>
+  </div>
+ </div>
+</div>
+
+<div id="charactersTab" style="display:none;flex:1;min-height:0;overflow:auto;background:radial-gradient(circle at 50% 0%,#173342,#07131d 60%);padding:22px">
+ <div class="charactersPage">
+  <div class="charactersHero">
+   <div>
+    <div class="charactersKicker">КОЛДАРИОН · ПЕРСОНАЖИ</div>
+    <h1>Персонажи</h1>
+    <p>Создавай и веди собственных персонажей прямо в Колдарионе. Лист построен по структуре D&D 5e 2014.</p>
+   </div>
+  </div>
+  <div class="charactersGrid">
+   <section class="characterPanel">
+    <h2>Мои персонажи</h2>
+    <div id="characterList" class="characterList">
+     <div class="characterEmpty">Персонажи пока не созданы.</div>
+    </div>
+    <div class="characterActions">
+      <button id="createCharacter" class="primary" type="button">＋ Создать персонажа</button>
+    </div>
+    <div id="characterStatus" class="status"></div>
+   </section>
+  </div>
+ </div>
+</div>
+
+<div id="characterSelectModal" class="characterModal" aria-hidden="true">
+ <div class="characterModalCard" role="dialog" aria-modal="true" aria-labelledby="characterSelectTitle">
+  <button id="closeCharacterSelect" class="characterModalClose" type="button" aria-label="Закрыть">×</button>
+  <div class="charactersKicker">КОЛДАРИОН · ПЕРСОНАЖ</div>
+  <h2 id="characterSelectTitle">Выберите персонажа</h2>
+  <p>Чтобы войти в мир и бросать кости, сначала выберите персонажа или создайте нового.</p>
+  <div id="characterSelectList" class="characterSelectGrid"></div>
+  <div class="characterModalActions"><button id="selectCreateCharacter" class="primary" type="button">＋ Создать персонажа</button></div>
+  <div id="characterSelectStatus" class="status"></div>
+ </div>
+</div>
+
+<div id="characterCreateModal" class="characterModal" aria-hidden="true">
+ <div class="characterModalCard" role="dialog" aria-modal="true" aria-labelledby="characterCreateTitle">
+  <button id="closeCharacterCreate" class="characterModalClose" type="button" aria-label="Закрыть">×</button>
+  <div class="charactersKicker">КОЛДАРИОН</div>
+  <h2 id="characterCreateTitle">Создать персонажа</h2>
+  <p>Начни с основных данных. Остальные разделы можно заполнить в листе.</p>
+  <div class="sheetGrid two">
+   <div class="sheetField"><label for="newCharName">Имя персонажа</label><input id="newCharName" placeholder="Например: Арвен"></div>
+   <div class="sheetField"><label for="newCharPlayer">Игрок</label><input id="newCharPlayer" placeholder="Имя игрока"></div>
+   <div class="sheetField"><label for="newCharClass">Класс</label><input id="newCharClass" placeholder="Воин"></div>
+   <div class="sheetField"><label for="newCharRace">Раса</label><input id="newCharRace" placeholder="Человек"></div>
+   <div class="sheetField"><label for="newCharLevel">Уровень</label><input id="newCharLevel" type="number" min="1" max="20" value="1"></div>
+   <div class="sheetField"><label for="newCharBackground">Предыстория</label><input id="newCharBackground" placeholder="Народный герой"></div>
+  </div>
+  <div class="characterModalActions">
+   <button id="cancelCharacterCreate" type="button">Отмена</button>
+   <button id="confirmCharacterCreate" class="primary" type="button">Создать и открыть лист</button>
+  </div>
+  <div id="characterCreateStatus" class="status"></div>
+ </div>
+</div>
+
+<div id="characterSheetModal" class="characterModal" aria-hidden="true">
+ <div class="characterModalCard" role="dialog" aria-modal="true" aria-labelledby="characterSheetTitle">
+  <button id="closeCharacterSheet" class="characterModalClose" type="button" aria-label="Закрыть">×</button>
+  <div class="charactersKicker">КОЛДАРИОН · ЛИСТ ПЕРСОНАЖА</div>
+  <h2 id="characterSheetTitle">Персонаж</h2>
+
+  <div class="sheetGrid">
+   <div class="sheetField"><label>Имя</label><input id="sName"></div>
+   <div class="sheetField"><label>Класс</label><input id="sClass"></div>
+   <div class="sheetField"><label>Уровень</label><input id="sLevel" type="number" min="1" max="20"></div>
+   <div class="sheetField"><label>Раса</label><input id="sRace"></div>
+   <div class="sheetField"><label>Предыстория</label><input id="sBackground"></div>
+   <div class="sheetField"><label>Мировоззрение</label><input id="sAlignment"></div>
+   <div class="sheetField"><label>Игрок</label><input id="sPlayer"></div>
+   <div class="sheetField"><label>Опыт</label><input id="sXp" type="number" min="0"></div>
+   <div class="sheetField"><label>Бонус мастерства</label><input id="sProf" readonly></div>
+  </div>
+
+  <div class="sheetSection">
+   <h3>Характеристики</h3>
+   <div class="abilityGrid">
+    <div class="abilityBox"><div class="abilityName">СИЛА</div><input id="aStr" type="number"><div class="abilityMod" id="mStr">+0</div></div>
+    <div class="abilityBox"><div class="abilityName">ЛОВКОСТЬ</div><input id="aDex" type="number"><div class="abilityMod" id="mDex">+0</div></div>
+    <div class="abilityBox"><div class="abilityName">ТЕЛОСЛОЖЕНИЕ</div><input id="aCon" type="number"><div class="abilityMod" id="mCon">+0</div></div>
+    <div class="abilityBox"><div class="abilityName">ИНТЕЛЛЕКТ</div><input id="aInt" type="number"><div class="abilityMod" id="mInt">+0</div></div>
+    <div class="abilityBox"><div class="abilityName">МУДРОСТЬ</div><input id="aWis" type="number"><div class="abilityMod" id="mWis">+0</div></div>
+    <div class="abilityBox"><div class="abilityName">ХАРИЗМА</div><input id="aCha" type="number"><div class="abilityMod" id="mCha">+0</div></div>
+   </div>
+  </div>
+
+  <div class="sheetSection">
+   <h3>Здоровье и бой</h3>
+   <div class="hpRow">
+    <div class="sheetField"><label>Текущее HP</label><div class="hpControl"><button type="button" data-hp="-1">−</button><input id="sHp" type="number"><button type="button" data-hp="1">+</button></div></div>
+    <div class="sheetField"><label>Максимум HP</label><input id="sHpMax" type="number"></div>
+    <div class="sheetField"><label>Временные HP</label><input id="sTempHp" type="number"></div>
+   </div>
+   <div class="sheetGrid">
+    <div class="sheetField"><label>Класс брони</label><input id="sAc" type="number"></div>
+    <div class="sheetField"><label>Инициатива</label><input id="sInit" type="number"></div>
+    <div class="sheetField"><label>Скорость</label><input id="sSpeed" type="number"></div>
+    <div class="sheetField"><label>Кость хитов</label><input id="sHitDice"></div>
+    <div class="sheetField"><label>Вдохновение</label><input id="sInspiration"></div>
+    <div class="sheetField"><label>Пассивная внимательность</label><input id="sPassive" type="number"></div>
+   </div>
+  </div>
+
+  <div class="sheetSection">
+   <h3>Спасброски и навыки</h3>
+   <div class="sheetField"><label>Спасброски</label><textarea id="sSaves" placeholder="Например: Сила, Телосложение"></textarea></div>
+   <div class="sheetField"><label>Владение навыками</label><textarea id="sSkills" placeholder="Атлетика, Внимательность, Скрытность..."></textarea></div>
+  </div>
+
+  <div class="sheetSection">
+   <h3>Атаки и оружие</h3>
+   <div class="sheetField"><label>Атаки</label><textarea id="sAttacks" rows="4" placeholder="Название — бонус атаки — урон"></textarea></div>
+  </div>
+
+  <div class="sheetSection">
+   <h3>Снаряжение и владения</h3>
+   <div class="sheetField"><label>Снаряжение</label><textarea id="sInventory" rows="5"></textarea></div>
+   <div class="sheetField"><label>Языки и владения</label><textarea id="sProficiencies" rows="4"></textarea></div>
+  </div>
+
+  <div class="sheetSection">
+   <h3>Способности и особенности</h3>
+   <div class="sheetField"><label>Расовые и классовые особенности, таланты</label><textarea id="sFeatures" rows="5"></textarea></div>
+  </div>
+
+  <div class="sheetSection">
+   <h3>Личность</h3>
+   <div class="sheetGrid two">
+    <div class="sheetField"><label>Черты характера</label><textarea id="sTraits"></textarea></div>
+    <div class="sheetField"><label>Идеалы</label><textarea id="sIdeals"></textarea></div>
+    <div class="sheetField"><label>Привязанности</label><textarea id="sBonds"></textarea></div>
+    <div class="sheetField"><label>Слабости</label><textarea id="sFlaws"></textarea></div>
+   </div>
+  </div>
+
+  <div class="sheetSection">
+   <h3>Заклинания</h3>
+   <div class="sheetGrid two">
+    <div class="sheetField"><label>Характеристика заклинаний</label><input id="sSpellAbility"></div>
+    <div class="sheetField"><label>Сл спасброска</label><input id="sSpellDc" type="number"></div>
+    <div class="sheetField"><label>Бонус атаки заклинанием</label><input id="sSpellAttack" type="number"></div>
+    <div class="sheetField"><label>Ячейки заклинаний</label><textarea id="sSpellSlots"></textarea></div>
+   </div>
+   <div class="sheetField"><label>Заговоры и заклинания</label><textarea id="sSpells" rows="6"></textarea></div>
+  </div>
+
+  <div class="sheetSection">
+   <h3>История и заметки</h3>
+   <div class="sheetField"><label>История</label><textarea id="sBackstory" rows="7"></textarea></div>
+   <div class="sheetField"><label>Заметки</label><textarea id="sNotes" rows="6"></textarea></div>
+  </div>
+
+  <div class="characterModalActions">
+   <button id="deleteCharacter" type="button">Удалить персонажа</button>
+   <button id="saveCharacter" class="primary" type="button">💾 Сохранить лист</button>
+  </div>
+  <div id="characterSheetStatus" class="status"></div>
+ </div>
+</div>
+<div id="diceColorModal" class="characterModal" aria-hidden="true">
+ <div class="characterModalCard diceColorCard" role="dialog" aria-modal="true" aria-labelledby="diceColorTitle">
+  <button id="closeDiceColor" class="characterModalClose" type="button" aria-label="Закрыть">×</button>
+  <div class="charactersKicker">КОЛДАРИОН · КОСТИ</div>
+  <h2 id="diceColorTitle">Цвет моих кубов</h2>
+  <p>Этот цвет будет использоваться для твоих 3D-кубов. При общих бросках его увидят остальные участники.</p>
+  <div class="diceColorPickerRow">
+   <input id="diceColorInput" type="color" value="#5b8fc9" aria-label="Цвет кубов">
+   <div><b id="diceColorHex">#5B8FC9</b><small>Выбери любой цвет</small></div>
+  </div>
+  <div class="characterModalActions"><button id="resetDiceColor" type="button">↺ Стандартный</button><button id="saveDiceColor" class="primary" type="button">💾 Сохранить цвет</button></div>
+  <div id="diceColorStatus" class="status"></div>
+ </div>
+</div>
+
+<div id="worldTab" style="display:none">
+<div id="newWorldModal" class="characterModal" aria-hidden="true">
+ <div class="characterModalCard" role="dialog" aria-modal="true" aria-labelledby="newWorldModalTitle">
+  <button id="closeNewWorldModal" class="characterModalClose" type="button" aria-label="Закрыть">×</button>
+  <div class="charactersKicker">КОЛДАРИОН</div>
+  <h2 id="newWorldModalTitle">Создать новый мир</h2>
+  <p>Создай отдельный мир со своей картой, слоями и метками.</p>
+  <label for="newWorldName">Название мира</label>
+  <input id="newWorldName" type="text" placeholder="Например: Земли Севера" autocomplete="off" maxlength="80">
+  <div class="characterModalActions">
+   <button id="cancelNewWorld" type="button">Отмена</button>
+   <button id="confirmNewWorld" class="primary" type="button">Создать мир</button>
+  </div>
+  <div id="newWorldStatus" class="status"></div>
+ </div>
+</div>
+<div id="worldSwitcher"><span class="worldSwitchTitle">Миры:</span><div id="worldTabs"></div><button class="worldTab worldAdd" id="addWorld" style="display:none">＋ Новый мир</button><div id="worldManage" class="worldManage"><button id="renameWorld" title="Переименовать текущий мир">✏️</button><button id="deleteWorld" title="Удалить текущий мир">🗑</button></div></div>
+<main id="worldMain">
+<aside>
+ <div class="sidebarTop">
+  <h2>Панель мира</h2>
+  <button id="toggleSidebar" title="Скрыть боковую панель" aria-label="Скрыть боковую панель">◀</button>
+ </div>
+
+ <div class="diceBox">
+  <div class="diceBoxTitle">🎲 Бросок костей</div>
+  <button id="openDiceColorButtonWorld" class="diceColorButton" type="button"><span class="diceColorSwatch" id="diceColorSwatch"></span>🎨 Цвет моих кубов</button>
+  <button id="masterDicePublishToggleWorld" class="dicePublishToggleWorld" type="button" aria-pressed="false">👁 Показывать бросок игрокам: ВЫКЛ</button>
+  <div class="diceGrid">
+   <button class="diceButton" type="button" data-die="4">d4</button>
+   <button class="diceButton" type="button" data-die="6">d6</button>
+   <button class="diceButton" type="button" data-die="8">d8</button>
+   <button class="diceButton" type="button" data-die="10">d10</button>
+   <button class="diceButton" type="button" data-die="12">d12</button>
+   <button class="diceButton" type="button" data-die="20">d20</button>
+   <button class="diceButton" type="button" data-die="100">d100</button>
+  </div>
+ </div>
+ <div id="editor">
+  <h2>Редактор мастера</h2>
+  <div class="layerBox">
+   <div class="layerBoxTitle">Слои карты</div>
+   <div id="layerList"></div>
+   <div class="layerActions">
+    <button class="primary" id="addLayer">＋ Новый слой</button>
+    <button id="renameLayer">✏️ Переименовать</button>
+    <button id="deleteLayer">🗑 Удалить</button>
+   </div>
+   <label id="replaceLayerMap" for="layerMapFile" class="fileButton" style="display:flex;width:100%;margin-top:6px;box-sizing:border-box;align-items:center;justify-content:center;cursor:pointer;text-align:center">🗺 Загрузить карту в выбранный слой</label>
+   <input id="layerMapFile" type="file" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none">
+  </div>
+  <button class="primary" id="add">＋ Добавить метку</button>
+  <button id="replaceMap">🖼 Заменить карту</button>
+  <input id="mapFile" type="file" accept="image/*" hidden>
+  <input id="search" placeholder="Поиск локации..." style="margin-top:9px">
+  <div id="list"></div>
+  <label>Название</label><input id="name">
+  <label>Локация</label><input id="type">
+  <label>Описание</label><textarea id="desc"></textarea>
+  <label>X (%)</label><input id="px" type="number" min="0" max="100" step=".1">
+  <label>Y (%)</label><input id="py" type="number" min="0" max="100" step=".1">
+  <div class="areaTools" style="margin-top:8px"><label>Область на карте</label><div class="actions"><button id="drawArea">✏ Нарисовать область</button><button id="finishArea" style="display:none">✓ Завершить</button><button id="clearArea">⌫ Очистить</button></div><label style="display:flex;align-items:center;gap:8px;margin-top:8px"><input id="areaOpen" type="checkbox" style="width:auto;margin:0"> Открыта игрокам</label><div class="help" style="margin-top:6px">Закрытая область скрывается от игроков под туманом. Открытая область видна игрокам при выборе метки. Мастер всегда видит настоящую форму области.</div></div>
+  <div class="actions" style="margin-top:9px"><button class="primary" id="save">Сохранить</button><button id="del">Удалить</button></div>
+  <div class="actions" style="margin-top:9px"><button id="exportMarkers">💾 Сохранить метки</button><button id="importMarkers">📂 Загрузить метки</button></div>
+  <input id="markersFile" type="file" accept="application/json,.json" hidden>
+  <div id="diceHistoryBox" class="layerBox diceHistoryBox" style="margin-top:10px">
+   <div class="layerBoxTitle" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+    <span>🎲 Броски игроков</span>
+    <button id="clearDiceHistory" type="button" style="font-size:11px;padding:5px 8px">🗑 Очистить</button>
+   </div>
+   <div id="diceHistoryList"><div class="onlinePlayersEmpty">Пока бросков нет.</div></div>
+  </div>
+  <div id="status" class="status"></div>
+  <div class="help">Мастер может управлять слоями, метками и картой. Игрок может только просматривать карту.</div>
+ </div>
+ <div id="playerLayerBox" class="layerBox" style="display:none">
+  <div class="layerBoxTitle">Слои</div>
+  <div id="playerLayerList"></div>
+  <div class="layerPlayerHint">Выберите слой, чтобы открыть его карту и метки.</div>
+ </div>
+ <div id="playerInfo" class="help">Режим игрока: метки нельзя изменять. Нажмите на метку, чтобы увидеть её название, локацию и описание.</div>
+</aside>
+<div id="mapArea">
+<div id="map"><div id="dice3DStage" aria-live="polite"><canvas id="dice3DCanvas"></canvas><div class="dice3DCaption"></div><div class="dice3DValue"></div></div><button id="showSidebar" title="Показать боковую панель" aria-label="Показать боковую панель">▶</button><div id="world"><img id="mapImage" src="" alt="Карта Колдариона"><svg id="areaSvg" viewBox="0 0 100 100" preserveAspectRatio="none"><defs><filter id="fogBlur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.6"/></filter></defs><g id="areas"></g></svg><div id="markers"></div></div>
+<div id="playerDetails" style="display:none">
+ <div class="playerDetailsCard">
+  <h3>Информация о метке</h3>
+  <div class="detailLabel">Название</div>
+  <div id="playerMarkerName" class="detailValue">—</div>
+  <div class="detailLabel">Локация</div>
+  <div id="playerMarkerLocation" class="detailValue">—</div>
+  <div class="detailLabel">Описание</div>
+  <div id="playerMarkerDesc" class="detailValue">—</div>
+ </div>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js"></script>
+
+<script>
+// Firebase configuration: paste the config from Firebase Console > Project settings > Your apps > Web app.
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCofztEwr25TYQMhH3w8GkvwTfHWrjqdwA",
+  authDomain: "kaldarion-f7079.firebaseapp.com",
+  projectId: "kaldarion-f7079",
+  storageBucket: "kaldarion-f7079.firebasestorage.app",
+  messagingSenderId: "966843815674",
+  appId: "1:966843815674:web:ae9268db2dac55820a1b43"
+};
+const $=id=>document.getElementById(id);
+const map=$("map"),world=$("world"),markers=$("markers"),list=$("list"),mapImage=$("mapImage"),areaSvg=$("areaSvg"),areas=$("areas");
+const MASTER_EMAIL = "likosta303@gmail.com";
+const firebaseReady = !Object.values(FIREBASE_CONFIG).some(v=>String(v).startsWith("PASTE_"));
+let db=null, auth=null, currentUser=null, loginFinishing=false, authInitialized=false, redirectChecked=false;
+if(firebaseReady){
+  firebase.initializeApp(FIREBASE_CONFIG);
+  auth=firebase.auth();
+  db=firebase.firestore();
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
+  $("firebaseHint").textContent="Firebase подключён. Войдите через Google.";
+}
+
+let role=null, selected=-1, adding=false, drawingArea=false, drawingPoints=[], scale=1,ox=0,oy=0,pan=false,sx=0,sy=0,bx=0,by=0,sidebarHidden=false;
+let activeSessionId=null, activeSession=null, pendingSessionMode="player";
+let worlds=[{id:"main",name:"Колдарион"}], activeWorldId="main";
+let presenceHeartbeat=null,presenceRefresh=null,sessionUnsubscribe=null,worldCatalogUnsubscribe=null,worldLayerUnsubscribe=null,diceUnsubscribe=null;
+
+const DEFAULT_PLACES=[];
+
+const EMBEDDED_KALDARION_MAP='';
+
+const EMBEDDED_KALDARION_MARKERS=[];
+
+let places=DEFAULT_PLACES.map(p=>({...p}));
+let layers=[{id:"main",name:"Основная карта",dataUrl:"",markers:places}];
+let activeLayerId="main";
+
+function normalizeMarkers(arr){
+ return (Array.isArray(arr)?arr:[]).map(p=>({
+  name:String(p?.name??"Без названия"),
+  type:String(p?.type??"Локация"),
+  x:Math.max(0,Math.min(100,Number(p?.x)||0)),
+  y:Math.max(0,Math.min(100,Number(p?.y)||0)),
+  desc:String(p?.desc??""),
+  areaPoints:Array.isArray(p?.areaPoints)?p.areaPoints.map(q=>({x:Math.max(0,Math.min(100,Number(q?.x)||0)),y:Math.max(0,Math.min(100,Number(q?.y)||0))})).slice(0,300):[],
+  areaOpen:p?.areaOpen===true
+ }));
+}
+function activeLayer(){
+ return layers.find(l=>l.id===activeLayerId)||layers[0];
+}
+function syncActiveLayer(){
+ const l=activeLayer();
+ if(!l)return;
+ l.markers=places;
+ l.dataUrl=mapImage.src.startsWith("data:image/")?mapImage.src:(l.dataUrl||"");
+}
+function resetView(){
+ scale=1;ox=0;oy=0;
+}
+function renderLayerLists(){
+ const lm=$("layerList"), pl=$("playerLayerList");
+ if(lm){
+  lm.innerHTML="";
+  layers.forEach(l=>{
+   const e=document.createElement("div");e.className="layerItem"+(l.id===activeLayerId?" active":"");
+   e.innerHTML=`<b>${esc(l.name)}</b><span>${l.markers.length} мет.</span>`;
+   e.onclick=()=>switchLayer(l.id);
+   lm.appendChild(e);
+  });
+ }
+ if(pl){
+  pl.innerHTML="";
+  layers.forEach(l=>{
+   const e=document.createElement("div");e.className="layerItem"+(l.id===activeLayerId?" active":"");
+   e.innerHTML=`<b>${esc(l.name)}</b><span>${l.markers.length} мет.</span>`;
+   e.onclick=()=>switchLayer(l.id);
+   pl.appendChild(e);
+  });
+ }
+}
+function switchLayer(id){
+ const current=activeLayer();
+ if(current) current.markers=places;
+ const target=layers.find(l=>l.id===id);
+ if(!target)return;
+ activeLayerId=id;
+ places=normalizeMarkers(target.markers);
+ selected=-1;adding=false;
+ mapImage.src=target.dataUrl||"";
+ resetView();
+ fill();render();renderLayerLists();
+ $("status").textContent=`Открыт слой: ${target.name}.`;
+}
+function makeLayerId(){
+ return "layer_"+Date.now()+"_"+Math.random().toString(36).slice(2,8);
+}
+function showTab(tab){
+  const home=tab==="home";
+  const worldTab=tab==="world";
+  const characters=tab==="characters";
+  $("homeTab").style.display=home?"flex":"none";
+  $("worldTab").style.display=worldTab?"flex":"none";
+  if(worldTab){
+    $("worldTab").style.flex="1 1 auto";
+    $("worldTab").style.minHeight="0";
+    $("worldTab").style.height="auto";
+  }
+  $("charactersTab").style.display=characters?"flex":"none";
+  $("homeTabButton").classList.toggle("active",home);
+  $("worldTabButton").classList.toggle("active",worldTab);
+  $("charactersTabButton").classList.toggle("active",characters);
+}
+$("homeTabButton").onclick=()=>showTab("home");
+$("worldTabButton").onclick=openWorldForPlayer;
+$("charactersTabButton").onclick=()=>showTab("characters");
+
+let characterCache=[];
+let activeCharacter=null;
+let myDiceColor="#5b8fc9";
+const DEFAULT_DICE_COLORS={master:"#c99b45",player:"#5b8fc9"};
+function normalizeDiceColor(v,fallback){const x=String(v||"").trim();return /^#[0-9a-fA-F]{6}$/.test(x)?x.toLowerCase():(fallback||DEFAULT_DICE_COLORS.player);}
+async function loadMyDiceColor(){
+ if(!currentUser||!activeSessionId||activeSessionId==="legacy"){myDiceColor=DEFAULT_DICE_COLORS[role]||DEFAULT_DICE_COLORS.player;return;}
+ const localKey=`kaldarionDiceColor_${activeSessionId}_${currentUser.uid}`;
+ let fallback=normalizeDiceColor(localStorage.getItem(localKey),DEFAULT_DICE_COLORS[role]||DEFAULT_DICE_COLORS.player);
+ myDiceColor=fallback;
+ try{const snap=await db.collection("sessions").doc(activeSessionId).collection("members").doc(currentUser.uid).get(); if(snap.exists){const d=snap.data()||{}; myDiceColor=normalizeDiceColor(d.diceColor,fallback); localStorage.setItem(localKey,myDiceColor);}}catch(e){}
+ updateDiceColorUI();
+}
+async function saveMyDiceColor(color){
+ myDiceColor=normalizeDiceColor(color,DEFAULT_DICE_COLORS[role]||DEFAULT_DICE_COLORS.player);
+ if(currentUser&&activeSessionId&&activeSessionId!=="legacy"&&db){try{await db.collection("sessions").doc(activeSessionId).collection("members").doc(currentUser.uid).set({diceColor:myDiceColor},{merge:true});}catch(e){console.warn("Не удалось сохранить цвет кубов",e);}}
+ localStorage.setItem(`kaldarionDiceColor_${activeSessionId}_${currentUser?.uid||"guest"}`,myDiceColor);
+ try{const all=JSON.parse(localStorage.getItem("kaldarionDiceColors")||"{}");all[currentUser?.uid||"guest"]=myDiceColor;localStorage.setItem("kaldarionDiceColors",JSON.stringify(all));}catch(e){}
+ updateDiceColorUI();
+}
+function updateDiceColorUI(){
+ const input=$("diceColorInput"),hex=$("diceColorHex"),swatch=$("diceColorSwatch"),homeSwatch=$("homeDiceColorSwatch");
+ if(input)input.value=myDiceColor; if(hex)hex.textContent=myDiceColor.toUpperCase(); if(swatch)swatch.style.background=myDiceColor; if(homeSwatch)homeSwatch.style.background=myDiceColor;
+}
+function openDiceColorModal(){const m=$("diceColorModal");if(!m)return;updateDiceColorUI();m.classList.add("open");m.setAttribute("aria-hidden","false");}
+function closeDiceColorModal(){const m=$("diceColorModal");if(!m)return;m.classList.remove("open");m.setAttribute("aria-hidden","true");}
+function getActiveCharacterKey(){return `kaldarionActiveCharacter_${activeSessionId}_${currentUser?.uid||"guest"}`;}
+function setActiveCharacter(c){
+ activeCharacter=c?{...c}:null;
+ if(c) localStorage.setItem(getActiveCharacterKey(),c.id); else localStorage.removeItem(getActiveCharacterKey());
+}
+async function restoreActiveCharacter(){
+ if(role!=="player"){activeCharacter=null;return;}
+ const id=localStorage.getItem(getActiveCharacterKey());
+ const items=await loadCharacters();
+ setActiveCharacter(items.find(c=>c.id===id)||null);
+}
+function openCharacterSelector(){const m=$("characterSelectModal");if(m){m.classList.add("open");m.setAttribute("aria-hidden","false");}}
+function closeCharacterSelector(){const m=$("characterSelectModal");if(m){m.classList.remove("open");m.setAttribute("aria-hidden","true");}}
+async function renderCharacterSelector(){
+ const box=$("characterSelectList");if(!box)return;
+ const items=await loadCharacters();
+ if(!items.length){box.innerHTML='<div class="characterSelectEmpty">У тебя пока нет персонажей. Создай первого персонажа.</div>';return;}
+ box.innerHTML=items.map((c,i)=>`<div class="characterSelectItem"><div><b>${esc(c.name||"Персонаж")}</b><small>${esc([c.race,c.className?c.className+" "+(c.level||1):""].filter(Boolean).join(" · ")||"Персонаж")}</small></div><button type="button" data-select-character="${i}">Выбрать</button></div>`).join("");
+ box.querySelectorAll("[data-select-character]").forEach(b=>b.onclick=()=>{const c=items[Number(b.dataset.selectCharacter)];if(!c)return;setActiveCharacter(c);closeCharacterSelector();showTab("world");});
+}
+async function openWorldForPlayer(){
+ if(role!=="player"){showTab("world");return;}
+ const items=await loadCharacters();
+ if(activeCharacter){activeCharacter=items.find(c=>c.id===activeCharacter.id)||null;}
+ if(!activeCharacter){await renderCharacterSelector();openCharacterSelector();return;}
+ showTab("world");
+}
+
+function getCharacterStorageKey(){
+  const uid=currentUser?.uid||"guest";
+  return `kaldarionCharacters_${uid}_${activeWorldId}`;
+}
+async function loadCharacters(){
+  if(!db||!currentUser){ characterCache=[]; return []; }
+  try{
+    let snap;
+    if(role==="master"){
+      snap=await db.collection("sessions").doc(activeSessionId).collection("characters").get();
+    }else{
+      snap=await db.collection("sessions").doc(activeSessionId).collection("characters").where("ownerUid","==",currentUser.uid).get();
+    }
+    characterCache=snap.docs.map(d=>({id:d.id,...(d.data()||{})}));
+    characterCache.sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"ru"));
+    return characterCache;
+  }catch(e){
+    characterCache=[];
+    $( "characterStatus" ).textContent="Не удалось загрузить персонажей: "+(e.message||e.code||e);
+    return [];
+  }
+}
+async function saveCharacterCloud(c){
+  if(!db||!currentUser)throw new Error("Firebase не подключён или пользователь не вошёл");
+  c.ownerUid=c.ownerUid||currentUser.uid;
+  c.ownerEmail=c.ownerEmail||currentUser.email||"";
+  c.worldId=c.worldId||activeWorldId;
+  c.sessionId=activeSessionId;
+  await db.collection("sessions").doc(activeSessionId).collection("characters").doc(c.id).set(c,{merge:true});
+}
+async function migrateLocalCharacters(){
+  if(!db||!currentUser||role!=="player")return;
+  const key=getCharacterStorageKey();
+  if(localStorage.getItem(key+"_cloudMigrated")==="1")return;
+  try{
+    const local=JSON.parse(localStorage.getItem(key)||"[]");
+    if(Array.isArray(local)&&local.length){
+      for(const c of local){
+        c.ownerUid=currentUser.uid;
+        c.ownerEmail=currentUser.email||"";
+        c.worldId=c.worldId||activeWorldId;
+        c.sessionId=activeSessionId;
+        await saveCharacterCloud(c);
+      }
+    }
+    localStorage.setItem(key+"_cloudMigrated","1");
+  }catch(e){
+    console.warn("Не удалось перенести локальных персонажей в Firebase:",e);
+  }
+}
+function defaultCharacter(data={}){
+  const level=Math.max(1,Math.min(20,Number(data.level)||1));
+  return {
+    id:"char_"+Date.now().toString(36)+Math.random().toString(36).slice(2,7),
+    ownerUid:currentUser?.uid||"",
+    ownerEmail:currentUser?.email||"",
+    worldId:activeWorldId,
+    name:data.name||"Новый персонаж",
+    player:data.player||currentUser?.displayName||"",
+    className:data.className||"",
+    level,
+    race:data.race||"",
+    background:data.background||"",
+    alignment:"",
+    xp:0,
+    prof:Math.floor((level-1)/4)+2,
+    str:10,dex:10,con:10,int:10,wis:10,cha:10,
+    hp:10,hpMax:10,tempHp:0,ac:10,init:0,speed:30,hitDice:"1d8",
+    inspiration:0,passive:10,
+    saves:"",skills:"",attacks:"",inventory:"",proficiencies:"",features:"",
+    traits:"",ideals:"",bonds:"",flaws:"",
+    spellAbility:"",spellDc:0,spellAttack:0,spellSlots:"",spells:"",
+    backstory:"",notes:"",
+    createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),sessionId:activeSessionId
+  };
+}
+async function renderCharacters(){
+  const box=$("characterList"); if(!box)return;
+  const items=await loadCharacters();
+  const title=document.querySelector("#charactersTab .characterPanel h2");
+  if(title)title.textContent=role==="master"?"Персонажи игроков":"Мои персонажи";
+  if(!items.length){
+    box.innerHTML='<div class="characterEmpty">'+(role==="master"?"Персонажи игроков пока не созданы.":"Персонажи пока не созданы.")+'</div>';
+    return;
+  }
+  box.innerHTML=items.map((c,i)=>`<div class="connectedCharacter">
+    <div>
+      <b>${esc(c.name||"Персонаж")}</b>
+      <small>${esc([c.race,c.className?c.className+" "+(c.level||1):""].filter(Boolean).join(" · ")||"Новый персонаж")}</small>
+      <div class="charMeta">${role==="master"&&c.player?`Игрок: ${esc(c.player)} · `:""}Уровень ${Number(c.level)||1} · HP ${Number(c.hp)||0}/${Number(c.hpMax)||0}</div>
+    </div>
+    <button type="button" data-char-open="${i}">📜 Открыть лист</button>
+  </div>`).join("");
+  box.querySelectorAll("[data-char-open]").forEach(btn=>btn.onclick=()=>openCharacterSheet(Number(btn.dataset.charOpen)));
+}
+function openCharacterCreate(){
+  $("characterCreateModal").classList.add("open");
+  $("characterCreateModal").setAttribute("aria-hidden","false");
+  $("characterCreateStatus").textContent="";
+  $("newCharName").focus();
+}
+function closeCharacterCreate(){
+  $("characterCreateModal").classList.remove("open");
+  $("characterCreateModal").setAttribute("aria-hidden","true");
+  $("characterCreateStatus").textContent="";
+}
+function readSheet(c){
+  const map={
+   name:"sName",className:"sClass",level:"sLevel",race:"sRace",background:"sBackground",
+   alignment:"sAlignment",player:"sPlayer",xp:"sXp",prof:"sProf",
+   str:"aStr",dex:"aDex",con:"aCon",int:"aInt",wis:"aWis",cha:"aCha",
+   hp:"sHp",hpMax:"sHpMax",tempHp:"sTempHp",ac:"sAc",init:"sInit",speed:"sSpeed",
+   hitDice:"sHitDice",inspiration:"sInspiration",passive:"sPassive",
+   saves:"sSaves",skills:"sSkills",attacks:"sAttacks",inventory:"sInventory",
+   proficiencies:"sProficiencies",features:"sFeatures",traits:"sTraits",ideals:"sIdeals",
+   bonds:"sBonds",flaws:"sFlaws",spellAbility:"sSpellAbility",spellDc:"sSpellDc",
+   spellAttack:"sSpellAttack",spellSlots:"sSpellSlots",spells:"sSpells",
+   backstory:"sBackstory",notes:"sNotes"
+  };
+  Object.entries(map).forEach(([key,id])=>{if($(id))$(id).value=c[key]??""});
+  $("characterSheetTitle").textContent=c.name||"Персонаж";
+  updateAbilityMods();
+}
+function writeSheet(c){
+  const ids={
+   name:"sName",className:"sClass",level:"sLevel",race:"sRace",background:"sBackground",
+   alignment:"sAlignment",player:"sPlayer",xp:"sXp",prof:"sProf",
+   str:"aStr",dex:"aDex",con:"aCon",int:"aInt",wis:"aWis",cha:"aCha",
+   hp:"sHp",hpMax:"sHpMax",tempHp:"sTempHp",ac:"sAc",init:"sInit",speed:"sSpeed",
+   hitDice:"sHitDice",inspiration:"sInspiration",passive:"sPassive",
+   saves:"sSaves",skills:"sSkills",attacks:"sAttacks",inventory:"sInventory",
+   proficiencies:"sProficiencies",features:"sFeatures",traits:"sTraits",ideals:"sIdeals",
+   bonds:"sBonds",flaws:"sFlaws",spellAbility:"sSpellAbility",spellDc:"sSpellDc",
+   spellAttack:"sSpellAttack",spellSlots:"sSpellSlots",spells:"sSpells",
+   backstory:"sBackstory",notes:"sNotes"
+  };
+  Object.entries(ids).forEach(([key,id])=>{
+    const el=$(id); if(!el)return;
+    c[key]=el.type==="number" ? (Number(el.value)||0) : el.value;
+  });
+  c.level=Math.max(1,Math.min(20,Number(c.level)||1));
+  c.prof=Math.floor((c.level-1)/4)+2;
+  c.updatedAt=new Date().toISOString();
+  $("sProf").value=c.prof;
+  $("characterSheetTitle").textContent=c.name||"Персонаж";
+  updateAbilityMods();
+}
+function updateAbilityMods(){
+  const pairs=[["Str","str"],["Dex","dex"],["Con","con"],["Int","int"],["Wis","wis"],["Cha","cha"]];
+  pairs.forEach(([a,k])=>{
+    const v=Number($("a"+a)?.value)||0;
+    const mod=Math.floor((v-10)/2);
+    $("m"+a).textContent=(mod>=0?"+":"")+mod;
+  });
+  const dex=Number($("aDex")?.value)||10;
+  $("sInit").value=Math.floor((dex-10)/2);
+  $("sPassive").value=10+Math.floor(((Number($("aWis")?.value)||10)-10)/2);
+}
+async function openCharacterSheet(index){
+  const items=await loadCharacters(); const c=items[index];
+  if(!c)return;
+  window.currentCharacterIndex=index;
+  readSheet(c);
+  $("characterSheetModal").classList.add("open");
+  $("characterSheetModal").setAttribute("aria-hidden","false");
+  $("characterSheetStatus").textContent="";
+}
+function closeCharacterSheet(){
+  $("characterSheetModal").classList.remove("open");
+  $("characterSheetModal").setAttribute("aria-hidden","true");
+}
+async function saveCurrentCharacter(){
+  const items=await loadCharacters(); const i=window.currentCharacterIndex;
+  if(!items[i])return;
+  const c=items[i];
+  writeSheet(c);
+  try{
+    await saveCharacterCloud(c);
+    characterCache[i]=c;
+    await renderCharacters();
+    $("characterSheetStatus").textContent="Лист сохранён в Firebase.";
+  }catch(e){
+    $("characterSheetStatus").textContent="Ошибка сохранения: "+(e.message||e.code||e);
+  }
+}
+async function createCharacter(){
+  const name=$("newCharName").value.trim();
+  if(!name){$("characterCreateStatus").textContent="Введи имя персонажа.";return;}
+  if(!db||!currentUser){$("characterCreateStatus").textContent="Сначала войди через Google.";return;}
+  const c=defaultCharacter({
+    name,
+    player:$("newCharPlayer").value.trim(),
+    className:$("newCharClass").value.trim(),
+    race:$("newCharRace").value.trim(),
+    level:$("newCharLevel").value,
+    background:$("newCharBackground").value.trim()
+  });
+  try{
+    $("characterCreateStatus").textContent="Сохраняем персонажа…";
+    await saveCharacterCloud(c);
+    setActiveCharacter(c);
+    await renderCharacters();
+    const items=characterCache;
+    const idx=items.findIndex(x=>x.id===c.id);
+    closeCharacterCreate();
+    await openCharacterSheet(idx>=0?idx:0);
+    $("characterStatus").textContent=`Персонаж «${c.name}» создан и сохранён в Firebase.`;
+  }catch(e){
+    $("characterCreateStatus").textContent="Не удалось сохранить персонажа: "+(e.message||e.code||e);
+  }
+}
+async function deleteCurrentCharacter(){
+  const items=await loadCharacters(); const i=window.currentCharacterIndex;
+  if(!items[i])return;
+  if(!confirm(`Удалить персонажа «${items[i].name||"Персонаж"}»?`))return;
+  try{
+    if(db)await db.collection("sessions").doc(activeSessionId).collection("characters").doc(items[i].id).delete();
+    closeCharacterSheet(); await renderCharacters();
+    $("characterStatus").textContent="Персонаж удалён.";
+  }catch(e){
+    $("characterSheetStatus").textContent="Ошибка удаления: "+(e.message||e.code||e);
+  }
+}
+window.currentCharacterIndex=-1;
+$("createCharacter").onclick=openCharacterCreate;
+$("closeCharacterSelect").onclick=closeCharacterSelector;
+$("characterSelectModal").addEventListener("click",e=>{if(e.target===$("characterSelectModal"))closeCharacterSelector();});
+$("selectCreateCharacter").onclick=()=>{closeCharacterSelector();openCharacterCreate();};
+
+$("closeCharacterCreate").onclick=closeCharacterCreate;
+$("cancelCharacterCreate").onclick=closeCharacterCreate;
+$("confirmCharacterCreate").onclick=createCharacter;
+$("characterCreateModal").addEventListener("click",e=>{if(e.target===$("characterCreateModal"))closeCharacterCreate()});
+$("newCharName").addEventListener("keydown",e=>{if(e.key==="Enter")createCharacter();if(e.key==="Escape")closeCharacterCreate()});
+$("closeCharacterSheet").onclick=closeCharacterSheet;
+$("characterSheetModal").addEventListener("click",e=>{if(e.target===$("characterSheetModal"))closeCharacterSheet()});
+$("saveCharacter").onclick=saveCurrentCharacter;
+$("deleteCharacter").onclick=deleteCurrentCharacter;
+document.querySelectorAll("[data-hp]").forEach(btn=>btn.onclick=()=>{
+  const input=$("sHp"); input.value=Math.max(0,(Number(input.value)||0)+Number(btn.dataset.hp)); updateAbilityMods();
+});
+["aStr","aDex","aCon","aInt","aWis","aCha","sLevel"].forEach(id=>$(id).addEventListener("input",updateAbilityMods));
+renderCharacters();
+$("openWorldButton").onclick=openWorldForPlayer;
+$("openCharactersButton").onclick=()=>showTab("characters");
+$("openCharactersButton").onclick=()=>showTab("characters");
+
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function areaPointFromEvent(e){
+ const r=world.getBoundingClientRect();
+ if(!r.width||!r.height)return {x:0,y:0};
+ return {x:Math.max(0,Math.min(100,((e.clientX-r.left)/r.width)*100)),y:Math.max(0,Math.min(100,((e.clientY-r.top)/r.height)*100))};
+}
+function renderAreas(){
+ if(!areas)return;
+ areas.innerHTML="";
+ // Во время рисования мастер видит только текущую область.
+ if(drawingArea){
+  const pts=drawingPoints;
+  if(!pts||!pts.length)return;
+  const poly=document.createElementNS("http://www.w3.org/2000/svg","polygon");
+  poly.setAttribute("points",pts.map(p=>`${p.x},${p.y}`).join(" "));
+  poly.setAttribute("class","areaPolygon temp");
+  areas.appendChild(poly);
+  pts.forEach(p=>{
+   const c=document.createElementNS("http://www.w3.org/2000/svg","circle");
+   c.setAttribute("cx",p.x);c.setAttribute("cy",p.y);c.setAttribute("r","0.55");c.setAttribute("class","areaPoint");
+   areas.appendChild(c);
+  });
+  return;
+ }
+
+ // Для игроков области показываются постоянно: открытые — своей формой,
+ // закрытые — чёрным туманом. Нажатие на метку больше не требуется.
+ if(role==="player"){
+  places.forEach((p,idx)=>{
+   const pts=Array.isArray(p.areaPoints)?p.areaPoints:[];
+   if(pts.length<3)return;
+   const points=pts.map(q=>`${q.x},${q.y}`).join(" ");
+   if(p.areaOpen===true){
+    const poly=document.createElementNS("http://www.w3.org/2000/svg","polygon");
+    poly.setAttribute("points",points);
+    poly.setAttribute("class","areaPolygon");
+    areas.appendChild(poly);
+    return;
+   }
+   // Закрытая область: непрозрачный чёрный туман внутри и плавное
+   // растворение к самой границе. Маска повторяет неровную форму области.
+   const mask=document.createElementNS("http://www.w3.org/2000/svg","mask");
+   const maskId=`fogMask_${idx}`;
+   mask.setAttribute("id",maskId);
+   mask.setAttribute("maskUnits","userSpaceOnUse");
+   mask.setAttribute("x","0");mask.setAttribute("y","0");
+   mask.setAttribute("width","100");mask.setAttribute("height","100");
+   const maskPoly=document.createElementNS("http://www.w3.org/2000/svg","polygon");
+   maskPoly.setAttribute("points",points);
+   maskPoly.setAttribute("fill","white");
+   maskPoly.setAttribute("filter","url(#fogBlur)");
+   mask.appendChild(maskPoly);
+   const defs=areaSvg.querySelector("defs");
+   defs.appendChild(mask);
+   const fog=document.createElementNS("http://www.w3.org/2000/svg","polygon");
+   fog.setAttribute("points",points);
+   fog.setAttribute("class","areaFog");
+   fog.setAttribute("mask",`url(#${maskId})`);
+   areas.appendChild(fog);
+  });
+  return;
+ }
+
+ // Мастер видит настоящую область выбранной метки.
+ if(selected>=0&&places[selected]&&Array.isArray(places[selected].areaPoints)){
+  const pts=places[selected].areaPoints;
+  if(pts.length<3)return;
+  const poly=document.createElementNS("http://www.w3.org/2000/svg","polygon");
+  poly.setAttribute("points",pts.map(p=>`${p.x},${p.y}`).join(" "));
+  poly.setAttribute("class","areaPolygon");
+  areas.appendChild(poly);
+ }
+}
+function startAreaDrawing(){
+ if(role!=="master"){ $("status").textContent="Рисовать области может только мастер."; return; }
+ if(selected<0||!places[selected]){ $("status").textContent="Сначала выберите метку."; return; }
+ drawingArea=true; drawingPoints=[];
+ $("drawArea").style.display="none";
+ $("finishArea").style.display="inline-block";
+ $("status").textContent="Рисование: кликайте по карте. Нажмите «Завершить», когда закончите.";
+ renderAreas();
+}
+async function finishAreaDrawing(){
+ if(!drawingArea)return;
+ const p=places[selected];
+ if(!p){clearAreaDrawingState();return;}
+ if(drawingPoints.length<3){
+  $("status").textContent="Для области нужно минимум 3 точки.";
+  return;
+ }
+ p.areaPoints=drawingPoints.slice(0,300).map(q=>({x:q.x,y:q.y}));
+ clearAreaDrawingState();
+ render();
+ $("status").textContent="Область сохранена. Нажмите «Сохранить», чтобы сохранить изменения метки.";
+ await saveWorld();
+}
+function clearAreaDrawingState(){
+ drawingArea=false; drawingPoints=[];
+ $("drawArea").style.display="inline-block";
+ $("finishArea").style.display="none";
+}
+async function clearArea(){
+ if(role!=="master"){ $("status").textContent="Изменять области может только мастер."; return; }
+ if(selected<0||!places[selected]){ $("status").textContent="Сначала выберите метку."; return; }
+ places[selected].areaPoints=[];places[selected].areaOpen=false;
+ clearAreaDrawingState();
+ render();
+ $("status").textContent="Область очищена.";
+ await saveWorld();
+}
+function render(){
+ world.style.transform=`translate(calc(-50% + ${ox}px),calc(-50% + ${oy}px)) scale(${scale})`;
+ markers.innerHTML="";
+ places.forEach((p,i)=>{
+  const m=document.createElement("div");m.className="marker"+(i===selected?" selected":"");m.style.left=p.x+"%";m.style.top=p.y+"%";
+  m.innerHTML=`<div class="pin"></div><div class="name">${esc(p.name)}</div>`;
+  if(role==="master") m.onpointerdown=e=>dragMarker(e,i,m); else m.onclick=e=>{e.stopPropagation();select(i);};
+  markers.appendChild(m);
+ });
+ renderList();
+ renderAreas();
+}
+function dragMarker(e,i,m){
+ e.stopPropagation();select(i);const move=v=>{const r=world.getBoundingClientRect();places[i].x=Math.max(0,Math.min(100,(v.clientX-r.left)/r.width*100));places[i].y=Math.max(0,Math.min(100,(v.clientY-r.top)/r.height*100));m.style.left=places[i].x+"%";m.style.top=places[i].y+"%";fill()};
+ const up=()=>{m.removeEventListener("pointermove",move);m.removeEventListener("pointerup",up);renderList();saveWorld()};m.addEventListener("pointermove",move);m.addEventListener("pointerup",up)
+}
+function renderList(){
+ const q=$("search").value.toLowerCase();list.innerHTML="";
+ places.forEach((p,i)=>{if(!p.name.toLowerCase().includes(q))return;const e=document.createElement("div");e.className="item"+(i===selected?" active":"");e.innerHTML=`<b>${esc(p.name)}</b><small>${esc(p.type)}</small>`;e.onclick=()=>select(i);list.appendChild(e)})
+}
+function select(i){selected=i;fill();render()}
+function fill(){
+ const p=places[selected];
+ $("name").value=p?.name||"";
+ $("type").value=p?.type||"";
+ $("desc").value=p?.desc||"";
+ $("px").value=p?.x??"";
+ $("py").value=p?.y??"";
+ $("areaOpen").checked=p?.areaOpen===true;
+ $("areaOpen").disabled=role!=="master" || !p;
+ if(role==="player" && p){
+   $("playerDetails").style.display="block";
+   $("playerMarkerName").textContent=p.name||"Без названия";
+   $("playerMarkerLocation").textContent=p.type||"Локация";
+   $("playerMarkerDesc").textContent=p.desc||"Описание отсутствует.";
+ }else if(role==="player"){
+   $("playerDetails").style.display="none";
+ }
+}
+function renderOnlinePlayers(players){
+ const listBox=$("onlinePlayersList"),countBox=$("onlinePlayersCount");
+ if(!listBox||!countBox)return;
+ countBox.textContent=`${players.length} ${players.length===1?"игрок":"игроков"} онлайн`;
+ if(!players.length){
+  listBox.innerHTML='<div class="onlinePlayersEmpty">Сейчас подключённых игроков нет.</div>';
+  return;
+ }
+ listBox.innerHTML=players.map(p=>`<div class="onlinePlayer"><span class="onlineDot"></span><span class="onlinePlayerName">${esc(p.name||"Игрок")}</span></div>`).join("");
+}
+async function loadOnlinePlayers(){
+ const listBox=$("onlinePlayersList"),countBox=$("onlinePlayersCount");
+ if(!listBox||!countBox)return;
+ if(!db){renderOnlinePlayers([]);countBox.textContent="Firebase не подключён";return;}
+ try{
+  const cutoff=Date.now();
+  const snap=await db.collection("presence").where("expiresAt",">",cutoff).get();
+  const players=snap.docs.map(d=>d.data()||{}).filter(p=>p.sessionId===activeSessionId&&p.role==="player"&&Number(p.expiresAt||0)>cutoff);
+  players.sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"ru"));
+  renderOnlinePlayers(players);
+ }catch(e){
+  countBox.textContent="Не удалось загрузить";
+  listBox.innerHTML='<div class="onlinePlayersEmpty">Нужны права Firestore для раздела presence.</div>';
+ }
+}
+async function startPresence(){
+ if(!db||!currentUser)return;
+ const write=async()=>{
+  if(!currentUser||role!=="player")return;
+  const now=Date.now();
+  const name=(localStorage.getItem("kaldarionPlayerNick")||currentUser.displayName||"Игрок").trim()||"Игрок";
+  try{
+   await db.collection("presence").doc(currentUser.uid).set({
+    uid:currentUser.uid,name,role:"player",sessionId:activeSessionId,lastSeen:now,expiresAt:now+45000
+   },{merge:true});
+  }catch(e){}
+ };
+ clearInterval(presenceHeartbeat);clearInterval(presenceRefresh);
+ if(role==="player"){
+   await write();
+   presenceHeartbeat=setInterval(write,20000);
+ }
+ await loadOnlinePlayers();
+ presenceRefresh=setInterval(loadOnlinePlayers,10000);
+}
+function stopPresence(){
+ clearInterval(presenceHeartbeat);clearInterval(presenceRefresh);
+ presenceHeartbeat=null;presenceRefresh=null;
+ if(db&&currentUser&&role==="player"){
+  db.collection("presence").doc(currentUser.uid).delete().catch(()=>{});
+ }
+}
+
+async function loginGoogle(){
+ if(!firebaseReady||!auth){
+   $("loginError").textContent="Firebase не подключён.";
+   return;
+ }
+ const btn=document.querySelector('#login button.primary');
+ try{
+   $("loginError").textContent="Открываю Google…";
+   if(btn) btn.disabled=true;
+   const nick=$("loginName").value.trim();
+   if(nick) localStorage.setItem("kaldarionPlayerNick",nick);
+   const provider=new firebase.auth.GoogleAuthProvider();
+   provider.setCustomParameters({prompt:"select_account"});
+
+   // На компьютере сначала используем popup. Это позволяет сразу получить
+   // результат авторизации и не терять его при возврате на GitHub Pages.
+   try{
+     const result=await auth.signInWithPopup(provider);
+     if(result&&result.user) await finishLogin(result.user);
+     return;
+   }catch(popupError){
+     console.warn("Google popup failed",popupError);
+     const code=popupError&&popupError.code||"";
+     // Если popup запрещён браузером, переходим на redirect.
+     if(["auth/popup-blocked","auth/popup-cancelled-by-user","auth/operation-not-supported-in-this-environment","auth/web-storage-unsupported"].includes(code)){
+       localStorage.setItem("kaldarionAuthPending","1");
+       await auth.signInWithRedirect(provider);
+       return;
+     }
+     throw popupError;
+   }
+ }catch(e){
+   console.error("Google sign-in error",e);
+   localStorage.removeItem("kaldarionAuthPending");
+   $("loginError").textContent="Ошибка входа Google: "+(e.message||e.code||e);
+ }finally{
+   if(btn) btn.disabled=false;
+ }
+}
+
+async function processGoogleRedirect(){
+ if(!firebaseReady||!auth||redirectChecked)return false;
+ redirectChecked=true;
+ try{
+   const result=await auth.getRedirectResult();
+   localStorage.removeItem("kaldarionAuthPending");
+   if(result&&result.user){
+     await finishLogin(result.user);
+     return true;
+   }
+   return false;
+ }catch(e){
+   console.error("Google redirect error",e);
+   localStorage.removeItem("kaldarionAuthPending");
+   const msg="Ошибка возврата из Google: "+(e.message||e.code||e);
+   localStorage.setItem("kaldarionLastAuthError",msg);
+   $("loginError").textContent=msg;
+   return false;
+ }
+}
+function showSessionScreen(){
+ $("sessionScreen").style.display="flex";
+ $("sessionTitle").textContent="Выберите мастера и сессию";
+ $("sessionIntro").textContent="Любой пользователь может создать свою сессию и стать её мастером. Игроки могут выбрать доступную сессию ниже.";
+ $("masterSessionCreate").style.display="block";
+ $("playerSessionJoin").style.display="block";
+ $("mySessionsSection").style.display="block";
+ $("allSessionsSection").style.display="block";
+ $("sessionMembersSection").style.display="none";
+ $("createSessionStatus").textContent="";
+ $("joinSessionStatus").textContent="";
+ loadMySessions();
+ loadAllSessions();
+}
+function hideSessionScreen(){ $("sessionScreen").style.display="none"; }
+function randomSessionCode(){
+ const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+ let s="";
+ for(let i=0;i<6;i++)s+=chars[Math.floor(Math.random()*chars.length)];
+ return "KAL-"+s;
+}
+function randomSalt(){
+ const bytes=new Uint8Array(16); crypto.getRandomValues(bytes);
+ return Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+async function hashSessionPassword(value,salt){
+ const base=String(salt||"kaldarion");
+ const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(String(value)),"PBKDF2",false,["deriveBits"]);
+ const bits=await crypto.subtle.deriveBits({name:"PBKDF2",salt:new TextEncoder().encode(base),iterations:100000,hash:"SHA-256"},key,256);
+ return Array.from(new Uint8Array(bits)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+async function deleteQueryDocs(query){
+ let deleted=0;
+ while(true){
+  const snap=await query.limit(450).get();
+  if(snap.empty)break;
+  let batch=db.batch();
+  snap.docs.forEach(d=>batch.delete(d.ref));
+  await batch.commit();
+  deleted+=snap.size;
+  if(snap.size<450)break;
+ }
+ return deleted;
+}
+async function deleteSessionWorld(sessionId){
+ const root=db.collection("sessions").doc(sessionId).collection("world");
+ await deleteQueryDocs(root.doc("layers").collection("items"));
+ const worldsRef=root.doc("worlds").collection("items");
+ const worldSnap=await worldsRef.get();
+ for(const w of worldSnap.docs){
+  await deleteQueryDocs(w.ref.collection("layers").doc("main").collection("items"));
+  await w.ref.delete();
+ }
+ for(const id of ["markers","map","settings"]){
+  await root.doc(id).delete().catch(()=>{});
+ }
+}
+async function deleteSessionCompletely(sessionId){
+ if(!db||!currentUser)throw new Error("Firebase не подключён");
+ const sref=db.collection("sessions").doc(sessionId);
+ const ss=await sref.get();
+ if(!ss.exists)throw new Error("Сессия не найдена");
+ const data=ss.data()||{};
+ if(data.masterUid!==currentUser.uid && currentUser.email!=="likosta303@gmail.com")throw new Error("Удалять сессию может только её мастер.");
+ await deleteQueryDocs(sref.collection("members"));
+ await deleteQueryDocs(sref.collection("characters"));
+ await deleteSessionWorld(sessionId);
+ await sref.delete();
+ if(activeSessionId===sessionId){
+  if(sessionUnsubscribe){sessionUnsubscribe();sessionUnsubscribe=null;}
+  activeSessionId=null;activeSession=null;localStorage.removeItem("kaldarionActiveSessionId");
+ }
+}
+async function resetSessionDataOnce(){
+ // Важно: существующие сессии НЕ очищаются при входе или обновлении страницы.
+ // Очистка выполняется только при создании новой сессии.
+ return;
+}
+async function createSession(){
+ if(!db||!currentUser)return;
+ const name=$("sessionName").value.trim().slice(0,80);
+ const password=$("sessionPassword").value;
+ if(!name){$("createSessionStatus").textContent="Введите название сессии.";return}
+ if(password.length<6){$("createSessionStatus").textContent="Пароль должен содержать минимум 6 символов.";return}
+ const btn=$("createSessionButton");btn.disabled=true;
+ $("createSessionStatus").textContent="Создаём сессию…";
+ try{
+  const id="sess_"+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+  const code=randomSessionCode();
+  const passwordSalt=randomSalt();
+  const passwordHash=await hashSessionPassword(password,passwordSalt);
+  const data={
+   name,code,passwordHash,passwordSalt,ownerUid:currentUser.uid,ownerEmail:currentUser.email||"",
+   masterUid:currentUser.uid,masterEmail:currentUser.email||"",masterName:localStorage.getItem("kaldarionPlayerNick")||currentUser.displayName||"Мастер",
+   createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  };
+  await db.collection("sessions").doc(id).set(data);
+  await db.collection("sessions").doc(id).collection("members").doc(currentUser.uid).set({
+   uid:currentUser.uid,name:localStorage.getItem("kaldarionPlayerNick")||currentUser.displayName||"Мастер",
+   email:currentUser.email||"",diceColor:normalizeDiceColor(localStorage.getItem(`kaldarionDiceColor_${id}_${currentUser.uid}`),DEFAULT_DICE_COLORS.master),joinedAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  // Новая сессия начинается с чистого листа. После создания ничего
+  // автоматически не очищается — все последующие изменения сохраняются в Firebase.
+  $("createSessionStatus").textContent=`Сессия создана. Код: ${code}`;
+  await enterSession(id,{id,...data},true);
+ }catch(e){
+  $("createSessionStatus").textContent="Не удалось создать сессию: "+(e.message||e.code||e);
+ }finally{btn.disabled=false}
+}
+async function joinSession(){
+ if(!db||!currentUser)return;
+ const code=$("sessionCode").value.trim().toUpperCase();
+ const password=$("joinSessionPassword").value;
+ if(!code||!password){$("joinSessionStatus").textContent="Введите код и пароль.";return}
+ const btn=$("joinSessionButton");btn.disabled=true;$("joinSessionStatus").textContent="Проверяем…";
+ try{
+  const snap=await db.collection("sessions").where("code","==",code).limit(1).get();
+  if(snap.empty){$("joinSessionStatus").textContent="Сессия с таким кодом не найдена.";return}
+  const doc=snap.docs[0], s=doc.data()||{};
+  const hash=await hashSessionPassword(password,s.passwordSalt||"kaldarion");
+  if(hash!==s.passwordHash){$("joinSessionStatus").textContent="Неверный пароль.";return}
+  await db.collection("sessions").doc(doc.id).collection("members").doc(currentUser.uid).set({
+   uid:currentUser.uid,name:localStorage.getItem("kaldarionPlayerNick")||currentUser.displayName||"Игрок",
+   email:currentUser.email||"",diceColor:normalizeDiceColor(localStorage.getItem(`kaldarionDiceColor_${doc.id}_${currentUser.uid}`),DEFAULT_DICE_COLORS.player),joinedAt:firebase.firestore.FieldValue.serverTimestamp()
+  },{merge:true});
+  await enterSession(doc.id,{id:doc.id,...s},doc.id==="legacy"||s.masterUid===currentUser.uid);
+ }catch(e){
+  $("joinSessionStatus").textContent="Не удалось подключиться: "+(e.message||e.code||e);
+ }finally{btn.disabled=false}
+}
+async function loadMySessions(){
+ if(!db||!currentUser)return;
+ const box=$("mySessionsList");if(!box)return;
+ try{
+  const snap=await db.collection("sessions").where("masterUid","==",currentUser.uid).get();
+  const list=snap.docs.map(d=>({id:d.id,...(d.data()||{})})).sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"ru"));
+  if(!list.length){box.innerHTML='<div class="onlinePlayersEmpty">Вы ещё не создали ни одной сессии.</div>';return}
+  box.innerHTML=list.map(s=>`<div class="sessionItem">
+    <div class="sessionItemInfo"><b>${esc(s.name||"Сессия")}</b><small>Вы — мастер · Код: <span class="sessionCodeValue">${esc(s.code||"—")}</span></small></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button type="button" data-enter-session="${esc(s.id)}">Открыть</button><button type="button" data-delete-session="${esc(s.id)}" style="border-color:#a84b4b;color:#f0b0b0">🗑 Удалить</button></div>
+  </div>`).join("");
+  box.querySelectorAll("[data-enter-session]").forEach(b=>b.onclick=async()=>{
+   const d=await db.collection("sessions").doc(b.dataset.enterSession).get();
+   if(d.exists)await enterSession(d.id,{id:d.id,...d.data()},true);
+  });
+  box.querySelectorAll("[data-delete-session]").forEach(b=>b.onclick=async()=>{
+   const id=b.dataset.deleteSession;
+   const item=list.find(x=>x.id===id);
+   if(!item)return;
+   if(!confirm(`Удалить сессию «${item.name||"Сессия"}»? Будут удалены её игроки, персонажи, миры, карты и метки.`))return;
+   b.disabled=true;
+   try{
+    await deleteSessionCompletely(id);
+    await loadMySessions();
+    await loadAllSessions();
+    $("createSessionStatus").textContent="Сессия удалена.";
+   }catch(e){
+    alert("Не удалось удалить сессию: "+(e.message||e.code||e));
+    b.disabled=false;
+   }
+  });
+ }catch(e){box.innerHTML='<div class="onlinePlayersEmpty">Не удалось загрузить ваши сессии.</div>'}
+}
+async function loadAllSessions(){
+ if(!db||!currentUser)return;
+ const box=$("allSessionsList"),status=$("allSessionsStatus");if(!box)return;
+ try{
+  status.textContent="Загружаем список…";
+  const snap=await db.collection("sessions").get();
+  const list=snap.docs.map(d=>({id:d.id,...(d.data()||{})}))
+    .filter(s=>s.status!=="closed")
+    .sort((a,b)=>String(a.masterName||a.masterEmail||"").localeCompare(String(b.masterName||b.masterEmail||""),"ru") || String(a.name||"").localeCompare(String(b.name||""),"ru"));
+  if(!list.length){box.innerHTML='<div class="onlinePlayersEmpty">Сейчас открытых сессий нет. Вы можете создать первую.</div>';status.textContent="";return}
+  box.innerHTML=list.map(s=>{
+    const master=String(s.masterName||s.masterEmail||"Неизвестный мастер");
+    return `<div class="sessionItem">
+      <div class="sessionItemInfo"><b>🎲 ${esc(s.name||"Сессия")}</b><small class="sessionMaster">👑 Мастер: ${esc(master)}</small><small>Код: <span class="sessionCodeValue">${esc(s.code||"—")}</span></small></div>
+      <button type="button" data-select-session="${esc(s.code||"")}">Выбрать</button>
+    </div>`;
+  }).join("");
+  box.querySelectorAll("[data-select-session]").forEach(b=>b.onclick=()=>{
+    $("sessionCode").value=b.dataset.selectSession||"";
+    $("joinSessionPassword").value="";
+    $("joinSessionStatus").textContent="Введите пароль этой сессии и нажмите «Войти в сессию».";
+    $("joinSessionPassword").focus();
+    $("playerSessionJoin").scrollIntoView({behavior:"smooth",block:"center"});
+  });
+  status.textContent=`Открытых сессий: ${list.length}`;
+ }catch(e){status.textContent="Не удалось загрузить список сессий: "+(e.message||e.code||e);box.innerHTML=""}
+}
+
+async function enterSession(id,s,forceMaster=false){
+ activeSessionId=id;activeSession=s;
+ role=forceMaster||s.masterUid===currentUser.uid?"master":"player";
+ if(sessionUnsubscribe){sessionUnsubscribe();sessionUnsubscribe=null;}
+ if(db&&id!=="legacy"){
+  sessionUnsubscribe=db.collection("sessions").doc(id).onSnapshot(snap=>{
+   if(!snap.exists||activeSessionId!==id)return;
+   const latest={id,...(snap.data()||{})};
+   activeSession=latest;
+   const nextRole=latest.masterUid===currentUser.uid?"master":"player";
+   if(nextRole!==role){
+    role=nextRole;
+    $("roleBadge").textContent=role==="master"?"МАСТЕР":"ИГРОК";
+    $("editor").style.display=role==="master"?"block":"none";
+    $("playerLayerBox").style.display=role==="player"?"block":"none";
+    $("playerInfo").style.display=role==="player"?"block":"none";
+    loadWorldCatalog().then(()=>{attachWorldListeners();return loadWorld();}).then(()=>loadMyDiceColor()).then(()=>{if(window.syncMasterDiceToggle)window.syncMasterDiceToggle();}).then(()=>renderCharacters()).then(()=>render());
+    stopPresence();startPresence();
+    if(role==="master") startDiceListener(); else startPlayerDiceListener();
+   }
+  });
+ }
+ activeWorldId=null;worlds=[];
+ localStorage.setItem("kaldarionActiveSessionId",id);
+ hideSessionScreen();
+ $("app").style.display="flex";
+ $("sessionBadge").style.display="inline-block";
+ $("sessionBadge").textContent=s.name||"Сессия";
+ $("roleBadge").textContent=role==="master"?"МАСТЕР":"ИГРОК";
+ $("editor").style.display=role==="master"?"block":"none";
+ $("playerLayerBox").style.display=role==="player"?"block":"none";
+ $("playerInfo").style.display=role==="player"?"block":"none";
+ await cleanupLegacyMainWorldOnce();
+ await loadWorldCatalog();
+ await loadWorld();
+ await loadMyDiceColor();
+ if(window.syncMasterDiceToggle)window.syncMasterDiceToggle();
+ if(role==="master") startDiceListener(); else startPlayerDiceListener();
+ await migrateLocalCharacters();
+ await restoreActiveCharacter();
+ await renderCharacters();
+ render();
+ await startPresence();
+}
+async function openSessionManager(){
+ if(!currentUser)return;
+ showSessionScreen();
+ if(activeSessionId){
+  $("sessionMembersSection").style.display="block";
+  await renderSessionMembers();
+ }
+}
+async function renderSessionMembers(){
+ if(!db||!activeSessionId)return;
+ const box=$("sessionMembersList");if(!box)return;
+ try{
+  const snap=await db.collection("sessions").doc(activeSessionId).collection("members").get();
+  const members=snap.docs.map(d=>d.data()||{}).filter(m=>m.uid);
+  if(!members.length){box.innerHTML='<div class="onlinePlayersEmpty">Участников пока нет.</div>';return}
+  box.innerHTML=members.map(m=>{
+   const isMe=m.uid===currentUser.uid;
+   const isMaster=m.uid===activeSession.masterUid;
+   return `<div class="sessionItem"><div class="sessionItemInfo"><b>${esc(m.name||m.email||"Игрок")}${isMaster?" 👑":""}</b><small>${esc(m.email||"")}</small></div>${role==="master"&&!isMaster&&!isMe?`<button type="button" data-transfer-master="${esc(m.uid)}">Сделать мастером</button>`:""}</div>`;
+  }).join("");
+  box.querySelectorAll("[data-transfer-master]").forEach(b=>b.onclick=async()=>{
+   const member=members.find(m=>m.uid===b.dataset.transferMaster);
+   if(!member)return;
+   if(!confirm(`Передать права мастера игроку ${member.name||member.email}?`))return;
+   await transferMaster(member.uid,member.email||"");
+  });
+ }catch(e){box.innerHTML='<div class="onlinePlayersEmpty">Не удалось загрузить участников.</div>'}
+}
+async function transferMaster(uid,email=""){
+ if(role!=="master"||!db||!activeSessionId)return;
+ try{
+  const memberSnap=await db.collection("sessions").doc(activeSessionId).collection("members").doc(uid).get();
+  const memberData=memberSnap.exists?(memberSnap.data()||{}):{};
+  await db.collection("sessions").doc(activeSessionId).update({
+   masterUid:uid,
+   masterEmail:email,
+   masterName:memberData.name||email||"Мастер",
+   updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  activeSession.masterUid=uid;
+  activeSession.masterEmail=email;
+  role=uid===currentUser.uid?"master":"player";
+  $("roleBadge").textContent=role==="master"?"МАСТЕР":"ИГРОК";
+  $("editor").style.display=role==="master"?"block":"none";
+  $("playerLayerBox").style.display=role==="player"?"block":"none";
+  $("playerInfo").style.display=role==="player"?"block":"none";
+  await renderSessionMembers();
+  await loadWorldCatalog();await loadWorld();await loadMyDiceColor();if(window.syncMasterDiceToggle)window.syncMasterDiceToggle();await renderCharacters();render();
+  hideSessionScreen();
+  stopPresence();await startPresence();
+  startDiceListener();
+  $("status").textContent="Права мастера переданы.";
+ }catch(e){alert("Не удалось передать права мастера: "+(e.message||e.code||e))}
+}
+async function finishLogin(user){
+ if(!user)return;
+ if(loginFinishing)return;
+ loginFinishing=true;
+ try{
+  currentUser=user;
+  pendingSessionMode="player";
+  $("login").style.display="none";
+  $("app").style.display="none";
+  $("sessionScreen").style.display="none";
+  const savedId=localStorage.getItem("kaldarionActiveSessionId");
+  if(savedId&&db){
+   try{
+    const doc=await db.collection("sessions").doc(savedId).get();
+    const member=await db.collection("sessions").doc(savedId).collection("members").doc(user.uid).get();
+    if(doc.exists&&member.exists){
+     const data=doc.data()||{};
+     await enterSession(doc.id,{id:doc.id,...data},data.masterUid===user.uid);
+     return;
+    }
+   }catch(e){
+    console.warn("Не удалось восстановить предыдущую сессию",e);
+   }
+  }
+  showSessionScreen();
+ }catch(e){
+  console.error("finishLogin error",e);
+  $("app").style.display="none";
+  $("sessionScreen").style.display="flex";
+  $("login").style.display="none";
+  showSessionScreen();
+ }finally{
+  loginFinishing=false;
+ }
+}
+async function logout(){
+ stopPresence();
+ stopWorldListeners();
+ stopDiceListener();
+ if(sessionUnsubscribe){sessionUnsubscribe();sessionUnsubscribe=null;}
+ try{if(auth) await auth.signOut();}catch(e){}
+ role=null;currentUser=null;activeSessionId=null;activeSession=null;
+ $("app").style.display="none";$("sessionScreen").style.display="none";$("login").style.display="grid";
+ $("sessionBadge").style.display="none";
+}
+function worldRoot(){
+ if(!db)throw new Error("Firebase не подключён");
+ if(activeSessionId==="legacy") return db.collection("world");
+ return db.collection("sessions").doc(activeSessionId).collection("world");
+}
+function sessionCharactersRoot(){
+ if(!db||!activeSessionId)throw new Error("Сессия не выбрана");
+ return db.collection("sessions").doc(activeSessionId).collection("characters");
+}
+async function cleanupLegacyMainWorldOnce(){
+ if(role!=="master"||!db||!activeSessionId||activeSessionId==="legacy")return;
+ const flagRef=worldRoot().doc("settings");
+ try{
+  const flagSnap=await flagRef.get();
+  if(flagSnap.exists && flagSnap.data()?.legacyMainWorldRemovedV1===true)return;
+  const root=worldRoot();
+  const refs=[];
+  const oldLayerSnap=await root.doc("layers").collection("items").get();
+  oldLayerSnap.docs.forEach(d=>refs.push(d.ref));
+  const oldWorldSnap=await root.doc("worlds").collection("items").get();
+  const mainWorld=oldWorldSnap.docs.find(d=>d.id==="main");
+  if(mainWorld){
+   const layersSnap=await mainWorld.ref.collection("layers").get();
+   for(const layerDoc of layersSnap.docs){
+    const itemsSnap=await layerDoc.ref.collection("items").get();
+    itemsSnap.docs.forEach(d=>refs.push(d.ref));
+    refs.push(layerDoc.ref);
+   }
+   refs.push(mainWorld.ref);
+  }
+  refs.push(root.doc("markers"),root.doc("map"));
+  for(let i=0;i<refs.length;i+=400){
+   const batch=db.batch();
+   refs.slice(i,i+400).forEach(ref=>batch.delete(ref));
+   await batch.commit();
+  }
+  await flagRef.set({legacyMainWorldRemovedV1:true,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:currentUser.email},{merge:true});
+ }catch(e){
+  console.warn("Не удалось очистить старый мир «Колдарион»:",e);
+ }
+}
+async function loadWorldCatalog(){
+ if(!db||!activeSessionId){worlds=[];activeWorldId=null;renderWorldTabs();return;}
+ try{
+  const snap=await worldRoot().doc("worlds").collection("items").get();
+  worlds=snap.docs.map(d=>({id:d.id,name:String((d.data()||{}).name||d.id)}))
+    .sort((a,b)=>a.name.localeCompare(b.name,"ru"));
+  if(!worlds.some(w=>w.id===activeWorldId)) activeWorldId=worlds[0]?.id||null;
+ }catch(e){
+  worlds=[];activeWorldId=null;
+ }
+ renderWorldTabs();
+}
+function renderWorldTabs(){
+ const box=$("worldTabs");if(!box)return;
+ box.innerHTML=worlds.map(w=>`<button class="worldTab ${w.id===activeWorldId?"active":""}" data-world="${esc(w.name)}" data-world-id="${w.id}">${esc(w.name)}</button>`).join("");
+ box.querySelectorAll(".worldTab").forEach(b=>b.onclick=()=>switchWorld(b.dataset.worldId));
+ $("addWorld").style.display=role==="master"?"inline-block":"none";
+ const manage=$("worldManage");
+ const canManage=role==="master"&&!!activeWorldId;
+ manage.style.display=canManage?"flex":"none";
+}
+async function switchWorld(id){
+ if(!id||id===activeWorldId)return;
+ activeWorldId=id;
+ resetView();selected=-1;adding=false;
+ renderWorldTabs();
+ await loadWorld();
+ render();
+}
+function openNewWorldModal(){
+ if(role!=="master"){ $("status").textContent="Создавать миры может только мастер."; return; }
+ $("newWorldModal").classList.add("open");
+ $("newWorldModal").setAttribute("aria-hidden","false");
+ $("newWorldName").value="";
+ $("newWorldStatus").textContent="";
+ setTimeout(()=>$("newWorldName").focus(),50);
+}
+function closeNewWorldModal(){
+ $("newWorldModal").classList.remove("open");
+ $("newWorldModal").setAttribute("aria-hidden","true");
+ $("newWorldStatus").textContent="";
+}
+async function createWorld(){
+ if(role!=="master"||!db){
+  $("newWorldStatus").textContent="Создание мира доступно только мастеру после входа.";
+  return;
+ }
+ const name=$("newWorldName").value.trim();
+ if(!name){
+  $("newWorldStatus").textContent="Введи название мира.";
+  $("newWorldName").focus();
+  return;
+ }
+ const cleanName=name.slice(0,80);
+ const id="world_"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+ const btn=$("confirmNewWorld");
+ btn.disabled=true;
+ $("newWorldStatus").textContent="Создаём мир…";
+ try{
+  await worldRoot().doc("worlds").collection("items").doc(id).set({
+   name:cleanName,
+   createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+   createdBy:currentUser.email
+  });
+  worlds.push({id,name:cleanName});
+  activeWorldId=id;
+  resetView();selected=-1;adding=false;
+  closeNewWorldModal();
+  renderWorldTabs();
+  await loadWorld();
+  render();
+  $("status").textContent=`Мир «${cleanName}» создан. Теперь загрузи карту и добавь слои и метки.`;
+ }catch(e){
+  $("newWorldStatus").textContent="Не удалось создать мир: "+(e.message||e.code||e);
+ }finally{
+  btn.disabled=false;
+ }
+}
+
+async function renameWorld(){
+ if(role!=="master"||!db||!activeWorldId)return;
+ const worldItem=worlds.find(w=>w.id===activeWorldId);
+ if(!worldItem)return;
+ const name=prompt("Новое название мира:",worldItem.name);
+ if(!name||!name.trim())return;
+ const cleanName=name.trim();
+ try{
+  await worldRoot().doc("worlds").collection("items").doc(activeWorldId).update({name:cleanName,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:currentUser.email});
+  worldItem.name=cleanName;
+  renderWorldTabs();
+  $("status").textContent=`Мир переименован в «${cleanName}».`;
+ }catch(e){$("status").textContent="Не удалось переименовать мир: "+(e.message||e.code);}
+}
+async function deleteWorld(){
+ if(role!=="master"||!db||!activeWorldId)return;
+ const worldItem=worlds.find(w=>w.id===activeWorldId);
+ if(!worldItem)return;
+ if(!confirm(`Удалить мир «${worldItem.name}»? Все его карты, слои и метки будут удалены без возможности восстановления.`))return;
+ const id=activeWorldId;
+ try{
+  const worldDoc=worldRoot().doc("worlds").collection("items").doc(id);
+  const layersSnap=await worldDoc.collection("layers").get();
+  const batch=db.batch();
+  for(const layerDoc of layersSnap.docs){
+   const itemsSnap=await layerDoc.ref.collection("items").get();
+   itemsSnap.docs.forEach(doc=>batch.delete(doc.ref));
+   batch.delete(layerDoc.ref);
+  }
+  batch.delete(worldDoc);
+  await batch.commit();
+  worlds=worlds.filter(w=>w.id!==id);
+  activeWorldId=worlds[0]?.id||null;
+  resetView();selected=-1;adding=false;
+  renderWorldTabs();
+  await loadWorld();
+  render();
+  $("status").textContent=`Мир «${worldItem.name}» удалён.`;
+ }catch(e){$("status").textContent="Не удалось удалить мир: "+(e.message||e.code);}
+}
+async function recreateMainWorldOnce(){ return; }
+async function seedKaldarionMapOnce(){ return; }
+async function seedKaldarionMarkersOnce(){ return; }
+async function loadWorld(){
+ if(!db||!activeSessionId||!activeWorldId){
+  layers=[];activeLayerId=null;places=[];mapImage.removeAttribute("src");
+  renderLayerLists();fill();render();
+  $("status").textContent=worlds.length?"Выбери мир или создай новый.":"Миров пока нет. Мастер может создать первый мир.";
+  attachWorldLayerListener();
+  return;
+ }
+ try{
+  const layersSnap=await worldRoot().doc("worlds").collection("items").doc(activeWorldId).collection("layers").doc("main").collection("items").get();
+  layers=layersSnap.docs.map(d=>{
+   const x=d.data()||{};
+   return {id:d.id,name:String(x.name||d.id),dataUrl:typeof x.dataUrl==="string"?x.dataUrl:"",markers:normalizeMarkers(x.markers)};
+  });
+  layers.sort((a,b)=>a.name.localeCompare(b.name,"ru"));
+  activeLayerId=layers[0]?.id||null;
+  const l=activeLayer();
+  places=normalizeMarkers(l?.markers||[]);
+  if(l?.dataUrl) mapImage.src=l.dataUrl; else mapImage.removeAttribute("src");
+  renderLayerLists();fill();render();
+  $("status").textContent=`Мир «${worlds.find(w=>w.id===activeWorldId)?.name||""}» загружен.`;
+  attachWorldLayerListener();
+ }catch(e){
+  console.error(e);
+  layers=[];activeLayerId=null;places=[];mapImage.removeAttribute("src");
+  renderLayerLists();fill();render();
+  $("status").textContent="Не удалось загрузить мир: "+(e.message||e.code);
+ }
+}
+function stopWorldListeners(){
+ if(worldCatalogUnsubscribe){worldCatalogUnsubscribe();worldCatalogUnsubscribe=null;}
+ if(worldLayerUnsubscribe){worldLayerUnsubscribe();worldLayerUnsubscribe=null;}
+}
+function attachWorldListeners(){
+ stopWorldListeners();
+ if(!db||!activeSessionId||activeSessionId==="legacy")return;
+ const worldsRef=worldRoot().doc("worlds").collection("items");
+ worldCatalogUnsubscribe=worldsRef.onSnapshot(snap=>{
+  worlds=snap.docs.map(d=>({id:d.id,name:String((d.data()||{}).name||d.id)}))
+    .sort((a,b)=>a.name.localeCompare(b.name,"ru"));
+  if(!worlds.some(w=>w.id===activeWorldId)) activeWorldId=worlds[0]?.id||null;
+  renderWorldTabs();
+  if(activeWorldId) attachWorldLayerListener();
+ });
+}
+function attachWorldLayerListener(){
+ if(worldLayerUnsubscribe){worldLayerUnsubscribe();worldLayerUnsubscribe=null;}
+ if(!db||!activeSessionId||!activeWorldId||activeSessionId==="legacy")return;
+ const ref=worldRoot().doc("worlds").collection("items").doc(activeWorldId).collection("layers").doc("main").collection("items");
+ worldLayerUnsubscribe=ref.onSnapshot(snap=>{
+  const incoming=snap.docs.map(d=>{
+   const x=d.data()||{};
+   return {id:d.id,name:String(x.name||d.id),dataUrl:typeof x.dataUrl==="string"?x.dataUrl:"",markers:normalizeMarkers(x.markers)};
+  }).sort((a,b)=>a.name.localeCompare(b.name,"ru"));
+  const currentId=activeLayerId;
+  layers=incoming;
+  activeLayerId=incoming.some(l=>l.id===currentId)?currentId:(incoming[0]?.id||null);
+  const l=activeLayer();
+  places=normalizeMarkers(l?.markers||[]);
+  if(l?.dataUrl) mapImage.src=l.dataUrl; else mapImage.removeAttribute("src");
+  renderLayerLists();fill();render();
+ });
+}
+
+function layerRef(layerId){
+ if(!db) throw new Error("Firebase не подключён");
+ if(!activeWorldId) throw new Error("Сначала создайте или выберите мир");
+ return worldRoot().doc("worlds").collection("items").doc(activeWorldId).collection("layers").doc("main").collection("items").doc(layerId);
+}
+async function saveLayer(layer=activeLayer()){
+ if(role!=="master"||!db||!layer)return;
+ try{
+  const dataUrl=typeof layer.dataUrl==="string"?layer.dataUrl:"";
+  if(dataUrl && dataUrl.length>900000) throw new Error("Карта слишком большая для Firestore. Выберите изображение меньшего размера.");
+  const ref=layerRef(layer.id);
+  await ref.set({
+   name:layer.name,dataUrl:dataUrl,markers:normalizeMarkers(layer.markers),
+   updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:currentUser.email
+  },{merge:true});
+  $("status").textContent=`Слой «${layer.name}» сохранён.`;
+ }catch(e){$("status").textContent="Ошибка сохранения карты/меток: "+(e.message||e.code);}
+}
+async function saveWorld(){
+ if(!activeWorldId){$("status").textContent="Сначала создайте или выберите мир.";return;}
+ let l=activeLayer();
+ if(!l){l={id:"main",name:"Основная карта",dataUrl:"",markers:[]};layers=[l];activeLayerId="main";places=[];renderLayerLists();}
+ syncActiveLayer();
+ await saveLayer(l);
+}
+async function compressMapForFirestore(dataUrl){
+ if(!dataUrl || dataUrl.length<=700000)return dataUrl;
+ return await new Promise((resolve,reject)=>{
+  const img=new Image();
+  img.onload=()=>{
+   try{
+    const maxSide=1800;
+    const scale=Math.min(1,maxSide/Math.max(img.naturalWidth||img.width,img.naturalHeight||img.height));
+    const canvas=document.createElement("canvas");
+    canvas.width=Math.max(1,Math.round((img.naturalWidth||img.width)*scale));
+    canvas.height=Math.max(1,Math.round((img.naturalHeight||img.height)*scale));
+    const ctx=canvas.getContext("2d");
+    ctx.drawImage(img,0,0,canvas.width,canvas.height);
+    let quality=.78, result=canvas.toDataURL("image/jpeg",quality);
+    while(result.length>700000 && quality>.45){
+      quality-=.07;
+      result=canvas.toDataURL("image/jpeg",quality);
+    }
+    if(result.length>900000)reject(new Error("Не удалось уменьшить карту до размера, допустимого Firestore."));
+    else resolve(result);
+   }catch(e){reject(e)}
+  };
+  img.onerror=()=>reject(new Error("Не удалось обработать изображение карты."));
+  img.src=dataUrl;
+ });
+}
+async function saveMapToFirebase(dataUrl){
+ if(role!=="master"||!db||!activeWorldId){$("status").textContent="Сначала создайте или выберите мир.";return;}
+ let l=activeLayer();
+ if(!l){
+  l={id:"main",name:"Основная карта",dataUrl:"",markers:[]};
+  layers=[l];activeLayerId="main";places=[];renderLayerLists();
+ }
+ try{
+  const savedUrl=await compressMapForFirestore(dataUrl);
+  l.dataUrl=savedUrl;
+  mapImage.src=savedUrl;
+  syncActiveLayer();
+  await saveLayer(l);
+  renderLayerLists();
+ }catch(e){
+  $("status").textContent="Не удалось сохранить карту: "+(e.message||e.code||e);
+ }
+}
+$("drawArea").onclick=startAreaDrawing;
+$("finishArea").onclick=finishAreaDrawing;
+$("clearArea").onclick=clearArea;
+map.addEventListener("click",e=>{
+  if(!drawingArea)return;
+  e.preventDefault();e.stopPropagation();
+  drawingPoints.push(areaPointFromEvent(e));renderAreas();
+},true);
+map.addEventListener("contextmenu",e=>{
+  if(!drawingArea)return;
+  e.preventDefault();finishAreaDrawing();
+},true);
+$("add").onclick=()=>{
+ if(role!=="master")return;
+ adding=true;selected=-1;fill();
+ $("status").textContent=`Кликните по карте, чтобы поставить метку на «${activeLayer().name}».`;
+};
+map.onclick=e=>{if(role!=="master"||!adding)return;const r=world.getBoundingClientRect();places.push({name:"Новая локация",type:"Локация",x:(e.clientX-r.left)/r.width*100,y:(e.clientY-r.top)/r.height*100,desc:"",areaPoints:[],areaOpen:false});selected=places.length-1;adding=false;fill();render();$("status").textContent="Метка добавлена.";saveWorld()};
+$("save").onclick=()=>{if(role!=="master"||selected<0)return;$("status").textContent="";let p=places[selected];p.name=$("name").value.trim()||"Без названия";p.type=$("type").value.trim()||"Локация";p.desc=$("desc").value.trim();p.x=Math.max(0,Math.min(100,+$("px").value||0));p.y=Math.max(0,Math.min(100,+$("py").value||0));if(!Array.isArray(p.areaPoints))p.areaPoints=[];p.areaOpen=$("areaOpen").checked===true;syncActiveLayer();render();$("status").textContent="Сохранено.";saveWorld()};
+$("del").onclick=()=>{if(role!=="master"||selected<0)return;places.splice(selected,1);selected=-1;fill();render();$("status").textContent="Удалено.";saveWorld()};
+$("search").oninput=renderList;
+$("exportMarkers").onclick=()=>{
+  if(role!=="master")return;
+  const data={version:1,site:"Колдарион",savedAt:new Date().toISOString(),markers:places};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="kaldarion-markers.json";a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  $("status").textContent="Расположение и данные меток сохранены в JSON-файл.";
+};
+$("importMarkers").onclick=()=>$("markersFile").click();
+$("markersFile").onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{
+    const data=JSON.parse(r.result);
+    const incoming=Array.isArray(data)?data:data.markers;
+    if(!Array.isArray(incoming))throw new Error("bad");
+    places=incoming.map(p=>({name:String(p.name??"Без названия"),type:String(p.type??"Локация"),x:Math.max(0,Math.min(100,Number(p.x)||0)),y:Math.max(0,Math.min(100,Number(p.y)||0)),desc:String(p.desc??""),areaPoints:Array.isArray(p.areaPoints)?p.areaPoints.map(q=>({x:Math.max(0,Math.min(100,Number(q?.x)||0)),y:Math.max(0,Math.min(100,Number(q?.y)||0))})).slice(0,300):[],areaOpen:p.areaOpen===true}));
+    selected=-1;syncActiveLayer();fill();render();$("status").textContent=`Загружено меток: ${places.length}.`;saveWorld();
+  }catch(err){$("status").textContent="Не удалось загрузить файл меток.";}
+  e.target.value="";};
+  r.readAsText(f);
+};
+$("replaceMap").onclick=()=>$("mapFile").click();
+$("mapFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{mapImage.src=r.result;await saveMapToFirebase(r.result);renderLayerLists();};r.readAsDataURL(f);e.target.value=""};
+
+$("layerMapFile").onchange=e=>{
+ const f=e.target.files[0];if(!f)return;
+ const r=new FileReader();
+ r.onload=async()=>{
+  try{
+   const l=activeLayer();
+   if(!l){$("status").textContent="Сначала создайте или выберите слой карты.";return;}
+   const dataUrl=await compressMapForFirestore(String(r.result||""));
+   l.dataUrl=dataUrl;
+   mapImage.src=dataUrl;
+   resetView();render();renderLayerLists();
+   await saveLayer(l);
+   $("status").textContent=`Карта загружена в слой «${l.name}» и сохранена в Firebase.`;
+  }catch(err){
+   console.error(err);
+   $("status").textContent="Не удалось загрузить карту: "+(err.message||err.code||"неизвестная ошибка");
+  }finally{e.target.value="";}
+ };
+ r.onerror=()=>{$("status").textContent="Не удалось прочитать файл карты.";e.target.value="";};
+ r.readAsDataURL(f);
+};async function createLayer(){
+ if(role!=="master"||!db){$("status").textContent="Создание слоя доступно только мастеру после подключения к Firebase.";return;}
+ const name=prompt("Название нового слоя:",`Новый слой ${layers.length+1}`);
+ if(!name||!name.trim())return;
+ const layer={id:makeLayerId(),name:name.trim(),dataUrl:"",markers:[]};
+ try{
+  // Сначала сохраняем документ в Firebase, затем добавляем его в локальный список.
+  // Так слой не появляется в интерфейсе как «созданный», если запись не удалась.
+  const ref=layerRef(layer.id);
+  await ref.set({name:layer.name,dataUrl:"",markers:[],createdAt:firebase.firestore.FieldValue.serverTimestamp(),createdBy:currentUser.email,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:currentUser.email});
+  layers.push(layer);
+  activeLayerId=layer.id;
+  places=[];
+  selected=-1;
+  adding=false;
+  mapImage.src="";
+  resetView();
+  renderLayerLists();
+  fill();
+  render();
+  $("status").textContent=`Слой «${layer.name}» создан и сохранён.`;
+ }catch(e){
+  $("status").textContent="Не удалось создать слой: "+(e.message||e.code);
+ }
+}
+$("addLayer").onclick=createLayer;
+$("renameLayer").onclick=async()=>{
+ if(role!=="master")return;
+ const l=activeLayer();if(!l)return;
+ const name=prompt("Новое название слоя:",l.name);
+ if(!name||!name.trim())return;
+ l.name=name.trim();renderLayerLists();await saveLayer(l);
+};
+$("deleteLayer").onclick=async()=>{
+ if(role!=="master")return;
+ if(layers.length===0){$("status").textContent="В мире нет слоёв.";return;}
+ const l=activeLayer();if(!l)return;
+ if(!confirm(`Удалить слой «${l.name}» вместе с его картой и метками?`))return;
+ try{
+  if(db){await layerRef(l.id).delete();}
+ }catch(e){$("status").textContent="Ошибка удаления: "+(e.message||e.code);return;}
+ layers=layers.filter(x=>x.id!==l.id);activeLayerId=layers[0]?.id||null;
+ const next=activeLayer();places=normalizeMarkers(next?.markers||[]);mapImage.src=next?.dataUrl||"";selected=-1;resetView();fill();render();renderLayerLists();
+ $("status").textContent=next?"Слой удалён.":"Слой удалён. Мир теперь пуст.";
+};
+
+map.onwheel=e=>{e.preventDefault();scale=Math.max(.65,Math.min(3.5,scale*(e.deltaY<0?1.1:.9)));render()};
+map.onpointerdown=e=>{if(drawingArea)return;if(e.target.closest(".marker")||role==="master"&&adding)return;pan=true;sx=e.clientX;sy=e.clientY;bx=ox;by=oy;map.setPointerCapture(e.pointerId);map.classList.add("drag")};
+map.onpointermove=e=>{if(pan){ox=bx+e.clientX-sx;oy=by+e.clientY-sy;render()}};map.onpointerup=()=>{pan=false;map.classList.remove("drag")};
+$("addWorld").onclick=openNewWorldModal;
+$("closeNewWorldModal").onclick=closeNewWorldModal;
+$("cancelNewWorld").onclick=closeNewWorldModal;
+$("confirmNewWorld").onclick=createWorld;
+$("newWorldModal").addEventListener("click",e=>{if(e.target===$("newWorldModal"))closeNewWorldModal()});
+$("newWorldName").addEventListener("keydown",e=>{if(e.key==="Enter")$("confirmNewWorld").click();if(e.key==="Escape")closeNewWorldModal()});
+$("renameWorld").onclick=renameWorld;
+$("deleteWorld").onclick=deleteWorld;
+function setSidebarHidden(hidden){
+ sidebarHidden=!!hidden;
+ $("worldMain").classList.toggle("sidebar-hidden",sidebarHidden);
+ document.body.classList.toggle("dice-sidebar-hidden",sidebarHidden);
+}
+$("toggleSidebar").onclick=()=>setSidebarHidden(true);
+$("showSidebar").onclick=()=>setSidebarHidden(false);
+setSidebarHidden(false);
+$("search").value="";
+$("createSessionButton").onclick=createSession;
+$("joinSessionButton").onclick=joinSession;
+$("sessionBackButton").onclick=logout;
+$("openSessionsButton").onclick=openSessionManager;
+$("sessionCode").addEventListener("keydown",e=>{if(e.key==="Enter")joinSession()});
+$("sessionPassword").addEventListener("keydown",e=>{if(e.key==="Enter")createSession()});
+showTab("home");
+if(firebaseReady){
+  // Сначала завершаем возможный Google redirect, затем слушаем состояние Auth.
+  // Не скрываем экран сессий из callback с null: это часто происходит во время
+  // первичной инициализации Firebase и раньше сбрасывало пользователя обратно на вход.
+  (async()=>{
+    try{ await processGoogleRedirect(); }catch(e){ console.warn("redirect init",e); }
+    auth.onAuthStateChanged(async user=>{
+      authInitialized=true;
+      if(user){
+        await finishLogin(user);
+        return;
+      }
+      if(currentUser || loginFinishing || document.getElementById("sessionScreen").style.display==="flex"){
+        return;
+      }
+      const lastError=localStorage.getItem("kaldarionLastAuthError");
+      if(lastError){ $("loginError").textContent=lastError; localStorage.removeItem("kaldarionLastAuthError"); }
+      $("app").style.display="none";
+      $("sessionScreen").style.display="none";
+      $("login").style.display="grid";
+      renderOnlinePlayers([]);
+    });
+  })();
+}else{
+  $("firebaseHint").textContent="Firebase Web Config ещё не вставлен. Откройте настройки Firebase Web App и вставьте конфигурацию в код ниже.";
+  render();
+}
+
+
+async function recordDiceRoll(sides,roll,publicToPlayers=false){
+ if(!db||!activeSessionId||activeSessionId==="legacy")return;
+ if(role!=="player" && role!=="master")return;
+ if(role==="player" && !activeCharacter)return;
+ try{
+  await db.collection("sessions").doc(activeSessionId).collection("diceRolls").add({
+   uid:currentUser.uid,
+   name:role==="master" ? (currentUser.displayName||"Мастер") : (activeCharacter.name||"Персонаж"),
+   characterId:role==="master" ? null : activeCharacter.id,
+   characterName:role==="master" ? "Мастер" : (activeCharacter.name||"Персонаж"),
+   playerName:(role==="master" ? (currentUser.displayName||currentUser.email||"Мастер") : (localStorage.getItem("kaldarionPlayerNick")||currentUser?.displayName||currentUser?.email||"Игрок")).trim(),
+   email:currentUser.email||"",
+   sides:Number(sides),roll:Number(roll),diceColor:myDiceColor,
+   publicToPlayers:!!publicToPlayers,
+   createdAt:firebase.firestore.FieldValue.serverTimestamp(),createdAtMs:Date.now()
+  });
+ }catch(e){console.warn("Не удалось записать бросок:",e);}
+}
+function stopDiceListener(){
+ if(diceUnsubscribe){diceUnsubscribe();diceUnsubscribe=null;}
+}
+function showRemoteDiceResult(r){
+  animate3DDice(Number(r.sides)||20, Number(r.roll)||1, r.characterName||r.name||"Персонаж", normalizeDiceColor(r.diceColor,getDiceColor(r.uid)));
+}
+async function publishMasterDiceRoll(sides,roll){
+ if(role!=="master"||!db||!activeSessionId||activeSessionId==="legacy")return;
+ await recordDiceRoll(sides,roll,true);
+}
+function addMasterPublishButton(result,sides,roll){
+  // Публикация теперь выбирается ДО броска переключателем.
+  return;
+}
+
+async function clearDiceHistory(){
+ if(role!=="master"||!db||!activeSessionId||activeSessionId==="legacy")return;
+ if(!confirm("Удалить всю историю бросков этой сессии? Это действие нельзя отменить."))return;
+ const box=$("diceHistoryList");
+ try{
+  const ref=db.collection("sessions").doc(activeSessionId).collection("diceRolls");
+  const snap=await ref.get();
+  if(snap.empty){
+   if(box)box.innerHTML='<div class="onlinePlayersEmpty">Пока бросков нет.</div>';
+   return;
+  }
+  const docs=snap.docs;
+  for(let i=0;i<docs.length;i+=400){
+   const batch=db.batch();
+   docs.slice(i,i+400).forEach(d=>batch.delete(d.ref));
+   await batch.commit();
+  }
+  window._diceSeenIds=new Set();
+  if(box)box.innerHTML='<div class="onlinePlayersEmpty">Пока бросков нет.</div>';
+ }catch(e){
+  console.error(e);
+  $("status").textContent="Не удалось удалить историю бросков: "+(e.message||e.code||e);
+ }
+}
+
+$("clearDiceHistory").onclick=clearDiceHistory;
+
+function startDiceListener(){
+ stopDiceListener();
+ window._diceSeenIds=new Set();
+ if(!db||!activeSessionId||activeSessionId==="legacy"||role!=="master")return;
+ const ref=db.collection("sessions").doc(activeSessionId).collection("diceRolls");
+ diceUnsubscribe=ref.onSnapshot(snap=>{
+  const rolls=snap.docs.map(d=>({id:d.id,...(d.data()||{})}))
+    .sort((a,b)=>(Number(b.createdAtMs)||0)-(Number(a.createdAtMs)||0))
+    .slice(0,30);
+  const box=$("diceHistoryList");
+  if(!box)return;
+  if(!rolls.length){box.innerHTML='<div class="onlinePlayersEmpty">Пока бросков нет.</div>';return;}
+  box.innerHTML=rolls.slice(0,15).map(r=>{
+   const when=r.createdAt?.toDate?r.createdAt.toDate().toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit",second:"2-digit"}):"только что";
+   return `<div class="diceHistoryItem"><div class="diceHistoryWho"><b>🎲 ${esc(r.characterName||r.name||"Персонаж")}</b><small>${esc(r.playerName||r.email||"Игрок")} · ${when}</small></div><div class="diceHistoryRoll">${Number(r.roll)||0}<span>/ d${Number(r.sides)||0}</span></div></div>`;
+  }).join("");
+
+  // Show every new player roll on the master's screen too.
+  if(role==="master" && window._diceSeenIds){
+    const newest=rolls[0];
+    if(newest && !window._diceSeenIds.has(newest.id)){
+      window._diceSeenIds.add(newest.id);
+      if(window._diceSeenIds.size>40){
+        const arr=Array.from(window._diceSeenIds);
+        window._diceSeenIds=new Set(arr.slice(-30));
+      }
+      if(newest.uid!==currentUser?.uid) showRemoteDiceResult(newest);
+    }
+  }
+ });
+}
+
+function startPlayerDiceListener(){
+ stopDiceListener();
+ if(!db||!activeSessionId||activeSessionId==="legacy"||role!=="player")return;
+ const ref=db.collection("sessions").doc(activeSessionId).collection("diceRolls");
+ diceUnsubscribe=ref.where("publicToPlayers","==",true).onSnapshot(snap=>{
+  const rolls=snap.docs.map(d=>({id:d.id,...(d.data()||{})})).sort((a,b)=>(Number(a.createdAtMs)||0)-(Number(b.createdAtMs)||0));
+  if(!window._playerDiceSeenIds)window._playerDiceSeenIds=new Set();
+  rolls.forEach(r=>{
+   if(window._playerDiceSeenIds.has(r.id))return;
+   window._playerDiceSeenIds.add(r.id);
+   if(r.uid!==currentUser?.uid)showRemoteDiceResult(r);
+  });
+ });
+}
+
+// Real-time 3D dice renderer. The geometry is projected from actual 3D vertices onto the map canvas.
+(function install3DDice(){
+  const TAU=Math.PI*2;
+  const stage=()=>document.getElementById("dice3DStage");
+  const canvas=()=>document.getElementById("dice3DCanvas");
+  const caption=()=>stage()?.querySelector(".dice3DCaption");
+  const valueEl=()=>stage()?.querySelector(".dice3DValue");
+  let raf=0,stopTimer=0;
+
+  function hexToRgb(hex){
+    const m=String(hex||"").replace("#","").match(/^[0-9a-f]{6}$/i); if(!m)return [185,145,65];
+    return [parseInt(m[0].slice(0,2),16),parseInt(m[0].slice(2,4),16),parseInt(m[0].slice(4,6),16)];
+  }
+  window.getDiceColor=function(uid){
+    const defaults=DEFAULT_DICE_COLORS;
+    try{
+      const map=JSON.parse(localStorage.getItem("kaldarionDiceColors")||"{}");
+      if(uid&&map[uid])return map[uid];
+    }catch(e){}
+    return uid===currentUser?.uid ? myDiceColor : "#8b6fc1";
+  };
+  function geomFor(n){
+    if(n===6)return {v:[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]],f:[[0,1,2,3],[4,7,6,5],[0,4,5,1],[1,5,6,2],[2,6,7,3],[4,0,3,7]],labels:["1","2","3","4","5","6"]};
+    if(n===4)return {v:[[1,1,1],[1,-1,-1],[-1,1,-1],[-1,-1,1]],f:[[0,2,1],[0,1,3],[0,3,2],[1,2,3]],labels:["1","2","3","4"]};
+    if(n===8)return {v:[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]],f:[[0,2,4],[2,1,4],[1,3,4],[3,0,4],[2,0,5],[1,2,5],[3,1,5],[0,3,5]],labels:["1","2","3","4","5","6","7","8"]};
+    if(n===10){
+      // Правильный d10: пятиугольная трапецоэдрическая форма.
+      // 2 вершины-полюса + 10 чередующихся вершин по экватору = 10 ромбовидных граней.
+      const top=[0,0,1.42], bottom=[0,0,-1.42], v=[top];
+      const ringR=1.06, highZ=0.30, lowZ=-0.30;
+      for(let i=0;i<10;i++){
+        const a=i*TAU/10;
+        const z=(i%2===0)?highZ:lowZ;
+        v.push([ringR*Math.cos(a),ringR*Math.sin(a),z]);
+      }
+      v.push(bottom);
+      const f=[];
+      for(let i=0;i<10;i++){
+        const next=1+((i+1)%10);
+        f.push([0,1+i,next,11]);
+      }
+      return {v,f,labels:Array.from({length:10},(_,i)=>String(i+1))};
+    }
+    if(n===100){
+      const v=[],f=[],lat=5,lon=10;
+      v.push([0,1.15,0]);
+      for(let j=1;j<lat;j++){let ph=Math.PI*j/lat;for(let i=0;i<lon;i++){let th=TAU*i/lon;v.push([Math.sin(ph)*Math.cos(th),Math.cos(ph),Math.sin(ph)*Math.sin(th)]);}}
+      const south=v.length;v.push([0,-1.15,0]);
+      for(let i=0;i<lon;i++)f.push([0,1+i,1+(i+1)%lon]);
+      for(let j=0;j<lat-2;j++)for(let i=0;i<lon;i++){let a=1+j*lon+i,b=1+j*lon+(i+1)%lon,c=1+(j+1)*lon+(i+1)%lon,d=1+(j+1)*lon+i;f.push([a,b,c,d]);}
+      const base=1+(lat-2)*lon;for(let i=0;i<lon;i++)f.push([base+i,south,base+(i+1)%lon]);
+      return {v,f,labels:f.map((_,i)=>String(((i%100)+1)).padStart(2,"0"))};
+    }
+    // d12/d20: convex polyhedra built from the canonical coordinates.
+    const phi=(1+Math.sqrt(5))/2;
+    let v;
+    if(n===20)v=[[0,1,phi],[0,-1,phi],[0,1,-phi],[0,-1,-phi],[1,phi,0],[-1,phi,0],[1,-phi,0],[-1,-phi,0],[phi,0,1],[-phi,0,1],[phi,0,-1],[-phi,0,-1]];
+    else v=[[-1,-1,-1],[-1,-1,1],[-1,1,-1],[-1,1,1],[1,-1,-1],[1,-1,1],[1,1,-1],[1,1,1]];
+    // For d12 use the dual of the icosahedron (centres of its 20 triangular faces).
+    if(n===12){
+      const ico=geomFor(20), centers=[];
+      ico.f.forEach(face=>{let c=[0,0,0];face.forEach(i=>{c[0]+=ico.v[i][0];c[1]+=ico.v[i][1];c[2]+=ico.v[i][2]});let l=Math.hypot(...c);centers.push(c.map(x=>x/l*1.25));});
+      const faces=[];
+      ico.v.forEach((p,vi)=>{
+        const ids=[]; centers.forEach((c,i)=>{const dot=p[0]*c[0]+p[1]*c[1]+p[2]*c[2];if(dot>1.05)ids.push(i)});
+        const nrm=[p[0],p[1],p[2]], ln=Math.hypot(...nrm); const nn=nrm.map(x=>x/ln);
+        const ref=Math.abs(nn[1])<.9?[0,1,0]:[1,0,0]; const ux=ref[1]*nn[2]-ref[2]*nn[1],uy=ref[2]*nn[0]-ref[0]*nn[2],uz=ref[0]*nn[1]-ref[1]*nn[0]; const ul=Math.hypot(ux,uy,uz);const u=[ux/ul,uy/ul,uz/ul]; const w=[nn[1]*u[2]-nn[2]*u[1],nn[2]*u[0]-nn[0]*u[2],nn[0]*u[1]-nn[1]*u[0]];
+        ids.sort((a,b)=>{const A=centers[a],B=centers[b];const aa=Math.atan2(A[0]*w[0]+A[1]*w[1]+A[2]*w[2],A[0]*u[0]+A[1]*u[1]+A[2]*u[2]);const bb=Math.atan2(B[0]*w[0]+B[1]*w[1]+B[2]*w[2],B[0]*u[0]+B[1]*u[1]+B[2]*u[2]);return aa-bb});faces.push(ids);
+      });
+      return {v:centers,f:faces,labels:faces.map((_,i)=>String(i+1))};
+    }
+    // d20 faces are the convex hull triangles of the icosahedron.
+    const faces=[];
+    for(let i=0;i<v.length;i++)for(let j=i+1;j<v.length;j++)for(let k=j+1;k<v.length;k++){
+      const a=v[i],b=v[j],c=v[k],ab=b.map((x,t)=>x-a[t]),ac=c.map((x,t)=>x-a[t]);const n=[ab[1]*ac[2]-ab[2]*ac[1],ab[2]*ac[0]-ab[0]*ac[2],ab[0]*ac[1]-ab[1]*ac[0]];let pos=false,neg=false;
+      for(let q=0;q<v.length;q++){if(q===i||q===j||q===k)continue;const d=(v[q][0]-a[0])*n[0]+(v[q][1]-a[1])*n[1]+(v[q][2]-a[2])*n[2];if(d>1e-7)pos=true;if(d<-1e-7)neg=true;if(pos&&neg)break;}
+      if(!(pos&&neg))faces.push([i,j,k]);
+    }
+    return {v,f:faces,labels:faces.map((_,i)=>String(i+1))};
+  }
+  function rotate(p,r){let [x,y,z]=p,cy=Math.cos(r.y),sy=Math.sin(r.y),cx=Math.cos(r.x),sx=Math.sin(r.x),cz=Math.cos(r.z),sz=Math.sin(r.z);let x1=x*cy+z*sy,z1=-x*sy+z*cy;let y2=y*cx-z1*sx,z2=y*sx+z1*cx;return [x1*cz-y2*sz,x1*sz+y2*cz,z2];}
+  function project(p,w,h,zoom){const z=p[2]+5.2;return [w/2+p[0]*zoom/z*2.35,h/2-p[1]*zoom/z*2.35,z];}
+  function draw(sides,roll,who,color){
+    const cv=canvas(),st=stage();if(!cv||!st)return;const rect=cv.getBoundingClientRect();const dpr=Math.min(2,window.devicePixelRatio||1);cv.width=Math.max(1,rect.width*dpr);cv.height=Math.max(1,rect.height*dpr);const ctx=cv.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);const w=rect.width,h=rect.height;ctx.clearRect(0,0,w,h);
+    const g=geomFor(sides); const verts=g.v.map(v=>rotate(v,{x:anim.rx,y:anim.ry,z:anim.rz})); const pts=verts.map(v=>project(v,w,h,Math.min(w,h))); const [cr,cg,cb]=hexToRgb(color);
+    const faces=g.f.map((face,i)=>{
+      const ps=face.map(k=>pts[k]);
+      let z=face.reduce((a,k)=>a+pts[k][2],0)/face.length;
+      const p0=verts[face[0]],p1=verts[face[1]],p2=verts[face[2]];
+      const ab=[p1[0]-p0[0],p1[1]-p0[1],p1[2]-p0[2]],ac=[p2[0]-p0[0],p2[1]-p0[1],p2[2]-p0[2]];
+      let normal=[ab[1]*ac[2]-ab[2]*ac[1],ab[2]*ac[0]-ab[0]*ac[2],ab[0]*ac[1]-ab[1]*ac[0]];
+      const center=face.reduce((a,k)=>[a[0]+verts[k][0],a[1]+verts[k][1],a[2]+verts[k][2]],[0,0,0]).map(x=>x/face.length);
+      const nl=Math.hypot(...normal)||1; normal=normal.map(x=>x/nl);
+      if(normal[0]*center[0]+normal[1]*center[1]+normal[2]*center[2]<0)normal=normal.map(x=>-x);
+      const toCamera=[-center[0],-center[1],-5.2-center[2]];
+      const visible=normal[0]*toCamera[0]+normal[1]*toCamera[1]+normal[2]*toCamera[2]>0;
+      return {face,ps,z,visible,faceIndex:i};
+    }).filter(F=>F.visible).sort((a,b)=>b.z-a.z);
+    faces.forEach(F=>{
+      ctx.beginPath();F.ps.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();
+      const shade=Math.max(.45,Math.min(1.2,.72+(-F.z+4.5)/8));ctx.fillStyle=`rgb(${Math.min(255,cr*shade)|0},${Math.min(255,cg*shade)|0},${Math.min(255,cb*shade)|0})`;ctx.fill();ctx.strokeStyle="rgba(15,12,10,.9)";ctx.lineWidth=2.2;ctx.stroke();
+      const cx=F.ps.reduce((a,p)=>a+p[0],0)/F.ps.length,cy=F.ps.reduce((a,p)=>a+p[1],0)/F.ps.length;
+      ctx.fillStyle="#fff";ctx.font=`900 ${Math.max(12,Math.min(22,w/15))}px Arial`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.shadowColor="#000c";ctx.shadowBlur=4;ctx.fillText(g.labels[F.faceIndex]||"",cx,cy);ctx.shadowBlur=0;
+    });
+  }
+  let anim={rx:.4,ry:.2,rz:0,t:0,start:0,dur:1700,done:false,sides:20,roll:1,who:"",color:"#c99b45"};
+  function loop(ts){
+    const elapsed=ts-anim.start, p=Math.min(1,elapsed/anim.dur);const ease=1-Math.pow(1-p,3);anim.rx=.5+ease*TAU*1.8;anim.ry=.25+ease*TAU*2.35;anim.rz=ease*TAU*.7; if(p<.7){anim.rx+=Math.sin(p*TAU*9)*.35*(1-p);anim.ry+=Math.cos(p*TAU*11)*.3*(1-p)} draw(anim.sides,anim.roll,anim.who,anim.color);if(p<1){raf=requestAnimationFrame(loop)}else{valueEl().textContent=String(anim.roll);stage().classList.add("result");stopTimer=setTimeout(()=>{stage().style.display="none";stage().classList.remove("result")},1250)}}
+  window.animate3DDice=function(sides,roll,who,color){cancelAnimationFrame(raf);clearTimeout(stopTimer);const st=stage();if(!st)return;st.style.display="block";st.classList.remove("result");caption().textContent="🎲 "+who+" · d"+sides;valueEl().textContent="";anim={rx:.2,ry:.1,rz:.15,t:0,start:performance.now(),dur:1750,sides,roll,who,color:color||"#c99b45"};raf=requestAnimationFrame(loop)};
+})();
+
+// Dice roller: available to both players and masters.
+(function(){
+  let timer = null;
+
+  function showDiceResult(sides){
+    const roll = Math.floor(Math.random() * sides) + 1;
+    const publish = role === "master" && !!window.masterDicePublish;
+    recordDiceRoll(sides,roll,publish);
+    animate3DDice(sides,roll,role === "master" ? "Мастер" : (activeCharacter?.name||"Персонаж"), getDiceColor(currentUser?.uid));
+  }
+
+  window.masterDicePublish = false;
+
+  // Кнопка публикации должна работать ДО броска. Скрипт находится выше HTML
+  // блока костей, поэтому подключаем обработчик через делегирование.
+  document.addEventListener("click", function(e){
+    const toggle = e.target.closest("#masterDicePublishToggle,#masterDicePublishToggleWorld");
+    if(!toggle || role !== "master") return;
+    window.masterDicePublish = !window.masterDicePublish;
+    syncMasterDiceToggle();
+  });
+
+  // После появления HTML-кнопки синхронизируем её с текущей ролью.
+  window.syncMasterDiceToggle=function(){
+    const diceDock=document.getElementById("diceBottomDock");
+    const toggles=[document.getElementById("masterDicePublishToggle"),document.getElementById("masterDicePublishToggleWorld")].filter(Boolean);
+    if(diceDock) diceDock.classList.toggle("master-dice", role === "master");
+    toggles.forEach(toggle=>{
+      const isWorldToggle=toggle.id==="masterDicePublishToggleWorld";
+      const on=role === "master" && window.masterDicePublish;
+      if(isWorldToggle) toggle.style.display=role === "master" ? "block" : "none";
+      toggle.classList.toggle("active",on);
+      toggle.setAttribute("aria-pressed",String(on));
+      toggle.textContent=on ? "👁 Показывать бросок игрокам: ВКЛ" : "👁 Показывать бросок игрокам: ВЫКЛ";
+    });
+  }
+  setTimeout(syncMasterDiceToggle,0);
+  document.addEventListener("click",function(e){
+    if(e.target.closest("#openDiceColorButton")||e.target.closest("#openDiceColorButtonWorld")||e.target.closest("#bottomDiceColorButton")){openDiceColorModal();return;}
+    if(e.target.closest("#closeDiceColor")){closeDiceColorModal();return;}
+    if(e.target.closest("#resetDiceColor")){const c=DEFAULT_DICE_COLORS[role]||DEFAULT_DICE_COLORS.player;$("diceColorInput").value=c;$("diceColorHex").textContent=c.toUpperCase();return;}
+    if(e.target.closest("#saveDiceColor")){saveMyDiceColor($("diceColorInput").value).then(()=>{const st=$("diceColorStatus");if(st)st.textContent="Цвет сохранён. Он будет использоваться в следующих бросках.";setTimeout(closeDiceColorModal,650);});return;}
+  });
+  const colorInput=$("diceColorInput"); if(colorInput)colorInput.addEventListener("input",()=>{$("diceColorHex").textContent=normalizeDiceColor(colorInput.value).toUpperCase();});
+
+  document.addEventListener("click", function(e){
+    const btn = e.target.closest(".diceButton");
+    if(!btn) return;
+    const sides = Number(btn.dataset.die);
+    if(role==="player" && !activeCharacter){
+      openWorldForPlayer();
+      return;
+    }
+    if(Number.isFinite(sides) && sides >= 2) showDiceResult(sides);
+  });
+})();
+</script>
+
+<div id="diceBottomDock" class="diceBottomDock" aria-label="Бросок костей">
+  <button id="bottomDiceColorButton" class="diceColorButton" type="button">🎨 Цвет моих кубов</button>
+  <button id="masterDicePublishToggle" class="dicePublishToggle" type="button" aria-pressed="false">👁 Показывать бросок игрокам: ВЫКЛ</button>
+  <div class="diceGrid">
+    <button class="diceButton" type="button" data-die="4">d4</button>
+    <button class="diceButton" type="button" data-die="6">d6</button>
+    <button class="diceButton" type="button" data-die="8">d8</button>
+    <button class="diceButton" type="button" data-die="10">d10</button>
+    <button class="diceButton" type="button" data-die="12">d12</button>
+    <button class="diceButton" type="button" data-die="20">d20</button>
+    <button class="diceButton" type="button" data-die="100">d100</button>
+  </div>
+</div>
+
+</body></html>
